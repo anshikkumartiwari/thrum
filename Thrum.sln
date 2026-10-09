@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thrum.Core", "Thrum.Core\Thrum.Core.csproj", "{5DBD5B32-A6AE-4289-8C47-D2E3014AF49B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thrum.Tests", "Thrum.Tests\Thrum.Tests.csproj", "{FA18B375-1006-4A38-A2AE-D2E77D871236}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thrum.App", "Thrum.App\Thrum.App.csproj", "{04C81D8B-9982-43B3-BECE-C00545FFE601}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5DBD5B32-A6AE-4289-8C47-D2E3014AF49B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DBD5B32-A6AE-4289-8C47-D2E3014AF49B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DBD5B32-A6AE-4289-8C47-D2E3014AF49B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DBD5B32-A6AE-4289-8C47-D2E3014AF49B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA18B375-1006-4A38-A2AE-D2E77D871236}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA18B375-1006-4A38-A2AE-D2E77D871236}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA18B375-1006-4A38-A2AE-D2E77D871236}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA18B375-1006-4A38-A2AE-D2E77D871236}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04C81D8B-9982-43B3-BECE-C00545FFE601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04C81D8B-9982-43B3-BECE-C00545FFE601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04C81D8B-9982-43B3-BECE-C00545FFE601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04C81D8B-9982-43B3-BECE-C00545FFE601}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
