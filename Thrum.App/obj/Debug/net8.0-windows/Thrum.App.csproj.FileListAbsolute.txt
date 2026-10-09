@@ -38,3 +38,7 @@ C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\n
 C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\Thrum.App.pdb
 C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\Thrum.App.genruntimeconfig.cache
 C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\ref\Thrum.App.dll
+C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\Controls\LaptopCanvas.g.cs
+C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\App.baml
+C:\Users\anshikkumartiwari\OneDrive\Desktop\PROJECTS\thrum\Thrum.App\obj\Debug\net8.0-windows\Controls\LaptopCanvas.baml

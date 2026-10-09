@@ -1,0 +1,165 @@
+<UserControl x:Class="Thrum.App.Controls.LaptopCanvas"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Thrum.App.ViewModels"
+             xmlns:conv="clr-namespace:Thrum.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="420" d:DesignWidth="620">
+
+    <UserControl.Resources>
+        <conv:HexColorToBrushConverter x:Key="HexColorConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <conv:RelativePositionConverter x:Key="RelativePosConverter"/>
+    </UserControl.Resources>
+
+    <Border Background="#0F172A" BorderBrush="#334155" BorderThickness="1.5" CornerRadius="18" Padding="12">
+        <Grid x:Name="ContainerGrid" ClipToBounds="True">
+            
+            <!-- Laptop Chassis Vector Outline -->
+            <Canvas x:Name="ChassisCanvas">
+                
+                <!-- Main Chassis Base -->
+                <Border x:Name="ChassisBase" 
+                        Canvas.Left="10" Canvas.Top="10"
+                        Width="{Binding ActualWidth, ElementName=ChassisCanvas, Converter={StaticResource RelativePosConverter}, ConverterParameter='20'}"
+                        Height="{Binding ActualHeight, ElementName=ChassisCanvas, Converter={StaticResource RelativePosConverter}, ConverterParameter='20'}"
+                        Background="#1E293B" BorderBrush="#475569" BorderThickness="2" CornerRadius="16">
+                    
+                    <Grid>
+                        <!-- Top Screen Hinge -->
+                        <Border Height="8" VerticalAlignment="Top" Margin="40,2,40,0" 
+                                Background="#334155" CornerRadius="4"/>
+
+                        <!-- Keyboard Tray Silhouette -->
+                        <Border Margin="24,24,24,0" Height="170" VerticalAlignment="Top"
+                                Background="#0F172A" BorderBrush="#334155" BorderThickness="1.5" CornerRadius="10">
+                            <Grid>
+                                <TextBlock Text="KEYBOARD REGION" Foreground="#475569" 
+                                           FontSize="11" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+                                <!-- Keyboard keys grid lines -->
+                                <UniformGrid Rows="4" Columns="10" Margin="12" Opacity="0.15">
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                    <Border BorderBrush="#64748B" BorderThickness="1" Margin="2" CornerRadius="3"/>
+                                </UniformGrid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Palm Rest & Trackpad Area -->
+                        <Grid VerticalAlignment="Bottom" Height="140" Margin="24,0,24,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="LEFT PALM REST" Foreground="#475569" 
+                                       FontSize="10" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+
+                            <!-- Center Trackpad -->
+                            <Border Grid.Column="1" Height="100" Margin="10,10,10,10"
+                                    Background="#0F172A" BorderBrush="#334155" BorderThickness="1.5" CornerRadius="10">
+                                <TextBlock Text="TRACKPAD" Foreground="#475569" 
+                                           FontSize="10" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+                            </Border>
+
+                            <TextBlock Grid.Column="2" Text="RIGHT PALM REST" Foreground="#475569" 
+                                       FontSize="10" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Zone Markers Layer -->
+                <ItemsControl ItemsSource="{Binding Zones}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource RelativePosConverter}" ConverterParameter="45">
+                                        <Binding Path="X"/>
+                                        <Binding Path="ActualWidth" ElementName="ChassisCanvas"/>
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Canvas.Top">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource RelativePosConverter}" ConverterParameter="20">
+                                        <Binding Path="Y"/>
+                                        <Binding Path="ActualHeight" ElementName="ChassisCanvas"/>
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:ZoneViewModel}">
+                            <Grid Cursor="Hand" MouseLeftButtonDown="OnMarkerMouseDown" MouseMove="OnMarkerMouseMove" MouseLeftButtonUp="OnMarkerMouseUp">
+                                
+                                <!-- Reactive Flash / Glow Effect Ring -->
+                                <Border Margin="-12" CornerRadius="28" 
+                                        Background="{Binding Color, Converter={StaticResource HexColorConverter}}"
+                                        Opacity="{Binding IsFlashing, Converter={StaticResource BoolToVisConverter}}"
+                                        Effect="{DynamicResource FlashBlurEffect}"
+                                        Visibility="{Binding IsFlashing, Converter={StaticResource BoolToVisConverter}}"/>
+
+                                <!-- Selection Border -->
+                                <Border CornerRadius="20" Padding="3"
+                                        BorderBrush="{Binding IsSelected, Converter={StaticResource HexColorConverter}}"
+                                        BorderThickness="{Binding IsSelected, Converter={StaticResource BoolToVisConverter}}">
+                                    
+                                    <!-- Main Zone Marker Capsule -->
+                                    <Border CornerRadius="16" Padding="10,6" MinWidth="85"
+                                            Background="{Binding Color, Converter={StaticResource HexColorConverter}}">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <!-- Zone Icon / Status -->
+                                            <Ellipse Width="8" Height="8" Fill="#FFFFFF" Margin="0,0,6,0" VerticalAlignment="Center"/>
+
+                                            <!-- Zone Name -->
+                                            <TextBlock Text="{Binding Name}" Foreground="#FFFFFF" 
+                                                       FontWeight="Bold" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center"/>
+
+                                            <!-- Tap Samples Badge -->
+                                            <Border Background="#1E293B" CornerRadius="8" Padding="5,1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SampleCount}" Foreground="#E2E8F0" 
+                                                           FontSize="10" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </Canvas>
+        </Grid>
+    </Border>
+</UserControl>
