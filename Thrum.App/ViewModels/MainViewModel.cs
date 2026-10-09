@@ -50,20 +50,26 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
     private bool _showPhysicsCaveat = true;
     private bool _showGuidedFlow = false;
 
-    // Color Swatches
+    // Clean High-Contrast Palette
     public static readonly string[] PaletteColors = {
-        "#3B82F6", // Blue
-        "#10B981", // Emerald
-        "#8B5CF6", // Purple
-        "#F59E0B", // Amber
-        "#EF4444", // Red
-        "#06B6D4", // Cyan
-        "#EC4899", // Pink
-        "#64748B"  // Slate / Ignore
+        "#FFFFFF", // Pure White
+        "#E4E4E7", // Light Silver
+        "#A1A1AA", // Muted Gray
+        "#71717A", // Slate
+        "#38BDF8", // Ice Blue
+        "#34D399", // Mint Green
+        "#FBBF24", // Warm Amber
+        "#F87171"  // Coral
     };
 
     public ObservableCollection<Profile> ProfilesList { get; } = new();
     public ObservableCollection<ZoneViewModel> Zones { get; } = new();
+
+    public string MicStatusText => (_isListening && !_micAccessDenied && _selectedDevice != null)
+        ? $"MIC ACTIVE: {_selectedDevice.Name}"
+        : (_micAccessDenied ? "MIC ACCESS DENIED" : "MIC PAUSED");
+
+    public bool IsMicActive => _isListening && !_micAccessDenied;
 
     public Profile ActiveProfile
     {
@@ -277,6 +283,10 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             Application.Current?.Dispatcher.InvokeAsync(() =>
             {
                 StatusMessage = $"Tap rejected: {message}";
+                if (IsRecording)
+                {
+                    RecordingPrompt = $"Tap rejected: {message}. Tap slightly firmer.";
+                }
             });
         };
 
@@ -287,7 +297,8 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
                 if (IsRecording && SelectedZone != null)
                 {
                     SelectedZone.Flash();
-                    StatusMessage = $"Accepted tap! Peak: {result.PeakAmplitude:0.00}, Crest: {result.CrestFactor:0.1}";
+                    RecordingPrompt = $"Tap accepted! Keep tapping {SelectedZone.Name}...";
+                    StatusMessage = $"Accepted tap! Peak: {result.PeakAmplitude:0.003}, Crest: {result.CrestFactor:0.1}";
                 }
             });
         };
@@ -424,6 +435,11 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             MicAccessDenied = true;
             StatusMessage = $"Microphone error: {ex.Message}";
         }
+        finally
+        {
+            OnPropertyChanged(nameof(MicStatusText));
+            OnPropertyChanged(nameof(IsMicActive));
+        }
     }
 
     public void StopListening()
@@ -432,6 +448,8 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
         _audioPipeline.SetModeIdle();
         AudioLevel = 0f;
         StatusMessage = "Listening paused.";
+        OnPropertyChanged(nameof(MicStatusText));
+        OnPropertyChanged(nameof(IsMicActive));
     }
 
     private void AddZone()
@@ -527,7 +545,10 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             }
         };
 
-        _audioPipeline.StartCapture(SelectedDevice?.Id);
+        if (!_audioPipeline.IsCapturing)
+        {
+            _audioPipeline.StartCapture(SelectedDevice?.Id);
+        }
         _audioPipeline.StartRecording(SelectedZone.Id, 15);
         StatusMessage = $"Recording mode active. {RecordingPrompt}";
     }

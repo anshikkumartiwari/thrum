@@ -43,8 +43,9 @@ public partial class LaptopCanvas : UserControl
 
             if (canvasWidth > 50 && canvasHeight > 50)
             {
-                double newRelX = Math.Clamp(currentPoint.X / canvasWidth, 0.08, 0.92);
-                double newRelY = Math.Clamp(currentPoint.Y / canvasHeight, 0.08, 0.92);
+                // Allow dragging beyond laptop outline onto surrounding desk area
+                double newRelX = Math.Clamp(currentPoint.X / canvasWidth, 0.02, 0.98);
+                double newRelY = Math.Clamp(currentPoint.Y / canvasHeight, 0.04, 0.96);
 
                 _draggedZone.X = newRelX;
                 _draggedZone.Y = newRelY;

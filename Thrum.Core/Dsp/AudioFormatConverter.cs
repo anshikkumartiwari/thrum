@@ -26,6 +26,8 @@ public sealed class AudioFormatConverter
         _resamplePhase = 0;
     }
 
+    private static readonly Guid SubTypeIeeeFloat = new("00000003-0000-0010-8000-00aa00389b71");
+
     /// <summary>
     /// Decodes raw WASAPI buffer bytes into mono float samples at original sample rate.
     /// </summary>
@@ -46,7 +48,12 @@ public sealed class AudioFormatConverter
 
         ReadOnlySpan<byte> byteSpan = rawBytes.AsSpan(0, bytesRecorded);
 
-        if (format.Encoding == WaveFormatEncoding.IeeeFloat && bitsPerSample == 32)
+        bool isFloat32 = (bitsPerSample == 32) && (
+            format.Encoding == WaveFormatEncoding.IeeeFloat ||
+            format.Encoding == WaveFormatEncoding.Extensible ||
+            (format is WaveFormatExtensible ext && ext.SubFormat == SubTypeIeeeFloat));
+
+        if (isFloat32)
         {
             for (int f = 0; f < framesToProcess; f++)
             {
@@ -62,59 +69,55 @@ public sealed class AudioFormatConverter
             }
             return framesToProcess;
         }
-        else if (format.Encoding == WaveFormatEncoding.Pcm || format.Encoding == WaveFormatEncoding.Extensible)
+        else if (bitsPerSample == 16)
         {
-            if (bitsPerSample == 16)
+            for (int f = 0; f < framesToProcess; f++)
             {
-                for (int f = 0; f < framesToProcess; f++)
+                int frameOffset = f * frameSize;
+                float sum = 0f;
+                for (int ch = 0; ch < channels; ch++)
                 {
-                    int frameOffset = f * frameSize;
-                    float sum = 0f;
-                    for (int ch = 0; ch < channels; ch++)
-                    {
-                        int sampleOffset = frameOffset + (ch * 2);
-                        short sample = BinaryPrimitives.ReadInt16LittleEndian(byteSpan.Slice(sampleOffset, 2));
-                        sum += sample / 32768f;
-                    }
-                    monoFloatDest[f] = sum / channels;
+                    int sampleOffset = frameOffset + (ch * 2);
+                    short sample = BinaryPrimitives.ReadInt16LittleEndian(byteSpan.Slice(sampleOffset, 2));
+                    sum += sample / 32768f;
                 }
-                return framesToProcess;
+                monoFloatDest[f] = sum / channels;
             }
-            else if (bitsPerSample == 24)
+            return framesToProcess;
+        }
+        else if (bitsPerSample == 24)
+        {
+            for (int f = 0; f < framesToProcess; f++)
             {
-                for (int f = 0; f < framesToProcess; f++)
+                int frameOffset = f * frameSize;
+                float sum = 0f;
+                for (int ch = 0; ch < channels; ch++)
                 {
-                    int frameOffset = f * frameSize;
-                    float sum = 0f;
-                    for (int ch = 0; ch < channels; ch++)
-                    {
-                        int sampleOffset = frameOffset + (ch * 3);
-                        int sample24 = (byteSpan[sampleOffset + 2] << 24) |
-                                       (byteSpan[sampleOffset + 1] << 16) |
-                                       (byteSpan[sampleOffset] << 8);
-                        // Sign-extended 32-bit int from 24-bit
-                        sum += (sample24 >> 8) / 8388608f;
-                    }
-                    monoFloatDest[f] = sum / channels;
+                    int sampleOffset = frameOffset + (ch * 3);
+                    int sample24 = (byteSpan[sampleOffset + 2] << 24) |
+                                   (byteSpan[sampleOffset + 1] << 16) |
+                                   (byteSpan[sampleOffset] << 8);
+                    sum += (sample24 >> 8) / 8388608f;
                 }
-                return framesToProcess;
+                monoFloatDest[f] = sum / channels;
             }
-            else if (bitsPerSample == 32)
+            return framesToProcess;
+        }
+        else if (bitsPerSample == 32 && format.Encoding == WaveFormatEncoding.Pcm)
+        {
+            for (int f = 0; f < framesToProcess; f++)
             {
-                for (int f = 0; f < framesToProcess; f++)
+                int frameOffset = f * frameSize;
+                float sum = 0f;
+                for (int ch = 0; ch < channels; ch++)
                 {
-                    int frameOffset = f * frameSize;
-                    float sum = 0f;
-                    for (int ch = 0; ch < channels; ch++)
-                    {
-                        int sampleOffset = frameOffset + (ch * 4);
-                        int sample = BinaryPrimitives.ReadInt32LittleEndian(byteSpan.Slice(sampleOffset, 4));
-                        sum += sample / 2147483648f;
-                    }
-                    monoFloatDest[f] = sum / channels;
+                    int sampleOffset = frameOffset + (ch * 4);
+                    int sample = BinaryPrimitives.ReadInt32LittleEndian(byteSpan.Slice(sampleOffset, 4));
+                    sum += sample / 2147483648f;
                 }
-                return framesToProcess;
+                monoFloatDest[f] = sum / channels;
             }
+            return framesToProcess;
         }
 
         // Fallback: unsupported format

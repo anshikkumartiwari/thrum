@@ -81,9 +81,9 @@ public sealed class OnsetDetector
     /// </summary>
     public float GetThreshold(float currentNoiseFloor)
     {
-        float multiplier = 8.0f - (_sensitivity * 6.0f);
+        float multiplier = 5.0f - (_sensitivity * 3.5f);
         // Minimum absolute threshold to guard against dead silence triggering on noise
-        return Math.Max(currentNoiseFloor * multiplier, 0.003f);
+        return Math.Max(currentNoiseFloor * multiplier, 0.0010f);
     }
 
     /// <summary>

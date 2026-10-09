@@ -74,10 +74,18 @@ public sealed class AudioPipeline : IDisposable
         _processingThread.Start();
     }
 
+    public bool IsCapturing => _capture.IsCapturing;
+    public string? CurrentDeviceId => _capture.CurrentDeviceId;
+
     public IReadOnlyList<AudioDeviceInfo> GetInputDevices() => _capture.GetInputDevices();
 
     public void StartCapture(string? deviceId = null)
     {
+        if (_capture.IsCapturing && (string.IsNullOrEmpty(deviceId) || deviceId == _capture.CurrentDeviceId))
+        {
+            return; // Already capturing seamlessly
+        }
+
         _ringBuffer.Clear();
         _noiseFloor.Reset();
         _onsetDetector.Reset();

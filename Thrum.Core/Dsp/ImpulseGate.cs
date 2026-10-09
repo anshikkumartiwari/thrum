@@ -66,11 +66,11 @@ public sealed class ImpulseGate
 
     public ImpulseGate(
         int sampleRate = 16000,
-        float minPeakAmplitude = 0.012f,
-        float minSnrMultiplier = 2.5f,
-        float minCrestFactor = 2.8f,
-        float maxLateEarlyEnergyRatio = 0.48f,
-        float maxEffectiveDurationMs = 55.0f)
+        float minPeakAmplitude = 0.0020f,
+        float minSnrMultiplier = 1.6f,
+        float minCrestFactor = 1.9f,
+        float maxLateEarlyEnergyRatio = 0.85f,
+        float maxEffectiveDurationMs = 85.0f)
     {
         _sampleRate = sampleRate;
         _minPeakAmplitude = minPeakAmplitude;
