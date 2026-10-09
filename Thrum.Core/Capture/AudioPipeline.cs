@@ -35,12 +35,13 @@ public sealed class AudioPipeline : IDisposable
     public string? RecordingZoneId { get; private set; }
     public int RecordingTargetCount { get; private set; } = 15;
     public int RecordedSampleCount { get; private set; } = 0;
+    public volatile bool IsAwaitingRecordingTap = true;
 
     public TapClassifier Classifier { get; set; } = new();
 
     // Events
     public event Action<float, float>? AudioLevelUpdated; // (currentLevel, noiseFloor)
-    public event Action<ImpulseRejectionReason, string>? TapRejected;
+    public event Action<ImpulseRejectionReason, string, ImpulseGateResult>? TapRejected;
     public event Action<float[], ImpulseGateResult>? TapAccepted;
     public event Action<string, int, int>? SampleRecorded; // (zoneId, currentCount, targetCount)
     public event Action<ClassificationResult>? TapClassified;
@@ -207,7 +208,7 @@ public sealed class AudioPipeline : IDisposable
 
         if (!gateResult.IsAccepted)
         {
-            TapRejected?.Invoke(gateResult.Reason, gateResult.RejectionMessage);
+            TapRejected?.Invoke(gateResult.Reason, gateResult.RejectionMessage, gateResult);
             return;
         }
 
@@ -215,20 +216,33 @@ public sealed class AudioPipeline : IDisposable
         float[] featureVector = new float[_featureExtractor.FeatureCount];
         _featureExtractor.ExtractFeatures(eventWindow, preRollSamples, featureVector);
 
-        TapAccepted?.Invoke(featureVector, gateResult);
-
         // 3. Dispatch according to active mode
         lock (_stateLock)
         {
             if (Mode == PipelineMode.Recording && RecordingZoneId != null)
             {
+                if (!IsAwaitingRecordingTap)
+                {
+                    // Taps during countdown or inter-tap lockout are strictly ignored
+                    return;
+                }
+
+                // Immediately disarm to guarantee exactly one tap is recorded per green cycle
+                IsAwaitingRecordingTap = false;
+
+                TapAccepted?.Invoke(featureVector, gateResult);
                 RecordedSampleCount++;
                 SampleRecorded?.Invoke(RecordingZoneId, RecordedSampleCount, RecordingTargetCount);
             }
             else if (Mode == PipelineMode.Live)
             {
+                TapAccepted?.Invoke(featureVector, gateResult);
                 var result = Classifier.Classify(featureVector);
                 TapClassified?.Invoke(result);
+            }
+            else
+            {
+                TapAccepted?.Invoke(featureVector, gateResult);
             }
         }
     }

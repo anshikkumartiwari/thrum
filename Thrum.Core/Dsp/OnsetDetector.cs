@@ -47,7 +47,7 @@ public sealed class OnsetDetector
         int sampleRate = 16000,
         float preRollMs = 30f,
         float postOnsetMs = 90f,
-        float refractoryMs = 140f,
+        float refractoryMs = 350f,
         float envelopeCutoffHz = 250f)
     {
         _sampleRate = sampleRate;
@@ -106,7 +106,6 @@ public sealed class OnsetDetector
 
             // Envelope low-pass filter
             _envelope = ((1.0f - _iirAlpha) * _envelope) + (_iirAlpha * absSample);
-            _samplesSinceLastOnset++;
 
             if (_isCapturingEvent)
             {
@@ -121,6 +120,7 @@ public sealed class OnsetDetector
                 if (_capturedPostSamples >= _postOnsetSamples)
                 {
                     _isCapturingEvent = false;
+                    _samplesSinceLastOnset = 0; // Begin full refractory lockout AFTER capture finishes
                     float[] completedWindow = new float[_totalWindowSamples];
                     Array.Copy(_eventBuffer, completedWindow, _totalWindowSamples);
                     onCompleteEvent?.Invoke(completedWindow, _noiseFloorAtOnset);
@@ -128,6 +128,7 @@ public sealed class OnsetDetector
             }
             else
             {
+                _samplesSinceLastOnset++;
                 float threshold = GetThreshold(noiseFloor.CurrentNoiseFloor);
 
                 // Onset condition: envelope exceeds threshold and refractory period has elapsed

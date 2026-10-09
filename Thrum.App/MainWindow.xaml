@@ -10,10 +10,10 @@
         xmlns:models="clr-namespace:Thrum.Core.Models;assembly=Thrum.Core"
         mc:Ignorable="d"
         Title="Thrum — Acoustic Chassis Tap Localization" 
-        Height="730" Width="1080" MinHeight="640" MinWidth="940"
+        Height="760" Width="1100" MinHeight="660" MinWidth="960"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/app.ico"
-        Background="#000000" Foreground="#FAFAFA">
+        Background="#FFFFFF" Foreground="#0F172A">
 
     <Window.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
@@ -21,11 +21,11 @@
         <conv:HexColorToBrushConverter x:Key="HexColorConverter"/>
         <conv:LevelToWidthConverter x:Key="LevelToWidthConverter"/>
 
-        <!-- Crisp Black & White Minimalist Styles -->
+        <!-- Crisp Clean Modern Light Styles -->
         <Style TargetType="Button" x:Key="ModernBtn">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#000000"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Padding" Value="14,7"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -39,10 +39,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E4E4E7"/>
+                                <Setter Property="Background" Value="#1E293B"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.35"/>
+                                <Setter Property="Opacity" Value="0.4"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -51,20 +51,45 @@
         </Style>
 
         <Style TargetType="Button" x:Key="SecondaryBtn" BasedOn="{StaticResource ModernBtn}">
-            <Setter Property="Background" Value="#18181B"/>
-            <Setter Property="Foreground" Value="#FAFAFA"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="#3F3F46" BorderThickness="1"
+                                BorderBrush="#CBD5E1" BorderThickness="1"
                                 CornerRadius="6" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#27272A"/>
-                                <Setter Property="BorderBrush" Value="#71717A"/>
+                                <Setter Property="Background" Value="#F1F5F9"/>
+                                <Setter Property="BorderBrush" Value="#94A3B8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button" x:Key="DangerBtn" BasedOn="{StaticResource ModernBtn}">
+            <Setter Property="Background" Value="#FEF2F2"/>
+            <Setter Property="Foreground" Value="#DC2626"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="#FECACA" BorderThickness="1"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FEE2E2"/>
+                                <Setter Property="BorderBrush" Value="#F87171"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -73,9 +98,9 @@
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#09090B"/>
-            <Setter Property="Foreground" Value="#FAFAFA"/>
-            <Setter Property="BorderBrush" Value="#27272A"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="FontSize" Value="13"/>
@@ -94,11 +119,36 @@
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#09090B"/>
-            <Setter Property="Foreground" Value="#FAFAFA"/>
-            <Setter Property="BorderBrush" Value="#27272A"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style TargetType="RadioButton" x:Key="TabRadioBtn">
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bdr" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bdr" Property="Background" Value="#FFFFFF"/>
+                                <Setter TargetName="bdr" Property="BorderBrush" Value="#CBD5E1"/>
+                                <Setter TargetName="bdr" Property="BorderThickness" Value="1"/>
+                                <Setter Property="Foreground" Value="#0F172A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -109,10 +159,10 @@
                         IconSource="/Assets/app.ico"
                         TrayLeftMouseDown="OnTrayIconClick">
             <tb:TaskbarIcon.ContextMenu>
-                <ContextMenu Background="#18181B" Foreground="#FAFAFA" BorderBrush="#3F3F46">
+                <ContextMenu Background="#FFFFFF" Foreground="#0F172A" BorderBrush="#CBD5E1">
                     <MenuItem Header="Open Thrum" Click="OnOpenWindowClick" FontWeight="Bold"/>
                     <MenuItem Header="Start / Stop Listening" Command="{Binding ToggleListeningCommand}"/>
-                    <Separator Background="#27272A"/>
+                    <Separator Background="#E2E8F0"/>
                     <MenuItem Header="Quit" Click="OnQuitAppClick"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
@@ -138,12 +188,12 @@
 
                 <!-- Logo & Subtitle -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="34" Height="34" Background="#FFFFFF" CornerRadius="8" Margin="0,0,10,0">
-                        <TextBlock Text="⚡" FontSize="18" Foreground="#000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Width="34" Height="34" Background="#0F172A" CornerRadius="8" Margin="0,0,10,0">
+                        <TextBlock Text="⚡" FontSize="18" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="THRUM" FontWeight="Black" FontSize="20" Foreground="#FFFFFF"/>
-                        <TextBlock Text="Acoustic Tap Localization" FontSize="11" Foreground="#71717A"/>
+                        <TextBlock Text="THRUM" FontWeight="Black" FontSize="20" Foreground="#0F172A"/>
+                        <TextBlock Text="Chassis Acoustic Tap Localization" FontSize="11" Foreground="#64748B"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -151,34 +201,34 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     
                     <!-- Live Microphone Status Badge -->
-                    <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,14,0">
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,14,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
                                 <Ellipse.Style>
                                     <Style TargetType="Ellipse">
-                                        <Setter Property="Fill" Value="#22C55E"/>
+                                        <Setter Property="Fill" Value="#16A34A"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsMicActive}" Value="False">
-                                                <Setter Property="Fill" Value="#71717A"/>
+                                                <Setter Property="Fill" Value="#94A3B8"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Ellipse.Style>
                             </Ellipse>
-                            <TextBlock Text="{Binding MicStatusText}" FontSize="11" FontWeight="Bold" Foreground="#FAFAFA" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding MicStatusText}" FontSize="11" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Live Audio Level Meter -->
-                    <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="8" Padding="10,5" VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="10,5" VerticalAlignment="Center" Margin="0,0,14,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="LEVEL" FontSize="10" FontWeight="Bold" Foreground="#71717A" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="LEVEL" FontSize="10" FontWeight="Bold" Foreground="#64748B" Margin="0,0,8,0" VerticalAlignment="Center"/>
 
                             <!-- Meter Track -->
-                            <Grid x:Name="MeterTrack" Width="100" Height="8" Background="#000000">
-                                <Border CornerRadius="2" Background="#09090B"/>
-                                <!-- Active Level Bar (Monochrome High Contrast) -->
-                                <Border HorizontalAlignment="Left" CornerRadius="2" Background="#FFFFFF">
+                            <Grid x:Name="MeterTrack" Width="90" Height="8" Background="#E2E8F0">
+                                <Border CornerRadius="2" Background="#E2E8F0"/>
+                                <!-- Active Level Bar -->
+                                <Border HorizontalAlignment="Left" CornerRadius="2" Background="#0F172A">
                                     <Border.Width>
                                         <MultiBinding Converter="{StaticResource LevelToWidthConverter}">
                                             <Binding Path="AudioLevel"/>
@@ -191,9 +241,9 @@
                     </Border>
 
                     <!-- Profile Selector -->
-                    <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="8" Padding="6,2">
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="6,2">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Profile:" Foreground="#71717A" FontSize="11" Margin="6,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Profile:" Foreground="#64748B" FontSize="11" Margin="6,0,6,0" VerticalAlignment="Center"/>
                             <ComboBox ItemsSource="{Binding ProfilesList}" DisplayMemberPath="Name" 
                                       SelectedItem="{Binding ActiveProfile}" Width="130" Height="26" BorderThickness="0"/>
                             <Button Content="+" Command="{Binding CreateProfileCommand}" Style="{StaticResource SecondaryBtn}" 
@@ -205,7 +255,7 @@
                 <!-- Right: Navigation Tabs & Listening Toggle -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Tab Toggle Buttons -->
-                    <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="8" Padding="2" Margin="0,0,10,0">
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="2" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton Content="Zones &amp; Live" IsChecked="{Binding SelectedTabIndex, Converter={x:Null}, Mode=OneWay}"
                                          Click="OnTabZonesClick" Style="{DynamicResource TabRadioBtn}" Margin="2,0"/>
@@ -218,13 +268,13 @@
                     <Button Command="{Binding ToggleListeningCommand}" MinWidth="90">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource ModernBtn}">
-                                <Setter Property="Background" Value="#FFFFFF"/>
-                                <Setter Property="Foreground" Value="#000000"/>
+                                <Setter Property="Background" Value="#0F172A"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
                                 <Setter Property="Content" Value="Listening"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsListening}" Value="False">
-                                        <Setter Property="Background" Value="#27272A"/>
-                                        <Setter Property="Foreground" Value="#A1A1AA"/>
+                                        <Setter Property="Background" Value="#F1F5F9"/>
+                                        <Setter Property="Foreground" Value="#64748B"/>
                                         <Setter Property="Content" Value="Paused"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -236,8 +286,8 @@
 
             <!-- 2. Physics Caveat Alert & Guided Flow Banners -->
             <StackPanel Grid.Row="1" Margin="0,0,0,12">
-                <!-- Physics Caveat Banner (Clean monochrome border) -->
-                <Border Background="#121214" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="8" Padding="12,8"
+                <!-- Physics Caveat Banner -->
+                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,8"
                         Margin="0,0,0,6" Visibility="{Binding ShowPhysicsCaveat, Converter={StaticResource BoolToVisConverter}}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -245,9 +295,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="ⓘ" FontSize="16" Foreground="#FAFAFA" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="11" Foreground="#D4D4D8" VerticalAlignment="Center">
-                            <Bold Foreground="#FFFFFF">Physics Caveat:</Bold> Single built-in microphone = no spatial triangulation. Thrum learns per-zone acoustic resonance signatures (chassis/desk timbre). Accuracy is specific to this laptop, surface, and position; recalibrate if it changes.
+                        <TextBlock Grid.Column="0" Text="ⓘ" FontSize="16" Foreground="#0F172A" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="11" Foreground="#475569" VerticalAlignment="Center">
+                            <Bold Foreground="#0F172A">Physics Caveat:</Bold> Single built-in microphone = no spatial triangulation. Thrum learns per-zone acoustic resonance signatures (chassis/desk timbre). Accuracy is specific to this laptop, surface, and position; recalibrate if it changes.
                         </TextBlock>
                         <Button Grid.Column="2" Content="Got it" Command="{Binding DismissCaveatCommand}" 
                                 Style="{StaticResource SecondaryBtn}" Padding="8,3" FontSize="11" Margin="10,0,0,0"/>
@@ -255,7 +305,7 @@
                 </Border>
 
                 <!-- First-Run Guided Flow Banner -->
-                <Border Background="#121214" BorderBrush="#52525B" BorderThickness="1" CornerRadius="8" Padding="12,8"
+                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,8"
                         Visibility="{Binding ShowGuidedFlow, Converter={StaticResource BoolToVisConverter}}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -263,9 +313,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="➔" FontSize="16" Foreground="#FFFFFF" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="11" Foreground="#E4E4E7" VerticalAlignment="Center">
-                            <Bold Foreground="#FFFFFF">Quick Setup:</Bold> 1. Click "+ Add Zone" (or use defaults) ➔ 2. Select zone &amp; click "Record" to tap ~15 times ➔ 3. Click "Train Model" ➔ 4. Tap the chassis in live mode!
+                        <TextBlock Grid.Column="0" Text="➔" FontSize="16" Foreground="#0F172A" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="11" Foreground="#475569" VerticalAlignment="Center">
+                            <Bold Foreground="#0F172A">Quick Setup:</Bold> 1. Click "+ Add Zone" (or use defaults) ➔ 2. Select zone &amp; click "Start Guided Calibration" ➔ 3. Tap on the GREEN prompt for all 15 taps ➔ 4. Click "Train Model"!
                         </TextBlock>
                         <Button Grid.Column="2" Content="Dismiss" Command="{Binding DismissGuidedFlowCommand}" 
                                 Style="{StaticResource SecondaryBtn}" Padding="8,3" FontSize="11" Margin="10,0,0,0"/>
@@ -279,10 +329,10 @@
                 <!-- TAB 0: Zones & Live View -->
                 <Grid x:Name="ZonesTabContent" Visibility="Visible">
                     <Grid.ColumnDefinitions>
-                        <!-- Laptop Canvas & Action Log (64%) -->
-                        <ColumnDefinition Width="64*"/>
-                        <!-- Zone Inspector Card (36%) -->
-                        <ColumnDefinition Width="36*"/>
+                        <!-- Laptop Canvas & Action Log (63%) -->
+                        <ColumnDefinition Width="63*"/>
+                        <!-- Zone Inspector Card (37%) -->
+                        <ColumnDefinition Width="37*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Left: Interactive Laptop Diagram -->
@@ -303,17 +353,17 @@
                                         Style="{StaticResource SecondaryBtn}" Margin="0,0,10,0"/>
 
                                 <TextBlock Text="{Binding Zones.Count, StringFormat='{}{0} zones'}" 
-                                           Foreground="#71717A" FontSize="11" VerticalAlignment="Center"/>
+                                           Foreground="#64748B" FontSize="11" VerticalAlignment="Center"/>
                             </StackPanel>
 
                             <!-- Live Detection Indicator -->
-                            <Border HorizontalAlignment="Right" Background="#121214" CornerRadius="6" Padding="10,5"
-                                    BorderBrush="#27272A" BorderThickness="1"
+                            <Border HorizontalAlignment="Right" Background="#F1F5F9" CornerRadius="6" Padding="10,5"
+                                    BorderBrush="#CBD5E1" BorderThickness="1"
                                     Visibility="{Binding LastDetectedZoneName, Converter={StaticResource BoolToVisConverter}}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Detected: " Foreground="#71717A" FontSize="11"/>
-                                    <TextBlock Text="{Binding LastDetectedZoneName}" Foreground="#FFFFFF" FontWeight="Bold" FontSize="11"/>
-                                    <TextBlock Text="{Binding LastDetectedConfidence, StringFormat=' ({0:P0})'}" Foreground="#E4E4E7" FontSize="11"/>
+                                    <TextBlock Text="Detected: " Foreground="#64748B" FontSize="11"/>
+                                    <TextBlock Text="{Binding LastDetectedZoneName}" Foreground="#0F172A" FontWeight="Bold" FontSize="11"/>
+                                    <TextBlock Text="{Binding LastDetectedConfidence, StringFormat=' ({0:P0})'}" Foreground="#475569" FontSize="11"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -322,27 +372,27 @@
                         <controls:LaptopCanvas Grid.Row="1"/>
 
                         <!-- Real-Time Status / Rejection Bar -->
-                        <Border Grid.Row="2" Background="#121214" BorderBrush="#27272A" BorderThickness="1" 
+                        <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" 
                                 CornerRadius="8" Padding="12,7" Margin="0,8,0,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="STATUS:" FontWeight="Bold" FontSize="11" Foreground="#71717A" Margin="0,0,8,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" FontSize="11" Foreground="#D4D4D8" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="0" Text="STATUS:" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,8,0"/>
+                                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" FontSize="11" Foreground="#0F172A" TextTrimming="CharacterEllipsis"/>
                             </Grid>
                         </Border>
                     </Grid>
 
                     <!-- Right: Zone Inspector & Action Mapping Card -->
-                    <Border Grid.Column="1" Background="#121214" BorderBrush="#27272A" BorderThickness="1.5" CornerRadius="12" Padding="16">
+                    <Border Grid.Column="1" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="12" Padding="16">
                         <Grid>
                             <!-- If Zone is Selected -->
                             <ScrollViewer VerticalScrollBarVisibility="Auto" 
                                           Visibility="{Binding HasSelectedZone, Converter={StaticResource BoolToVisConverter}}">
                                 <StackPanel>
-                                    <TextBlock Text="ZONE INSPECTOR" FontSize="10" FontWeight="Bold" Foreground="#71717A" Margin="0,0,0,10"/>
+                                    <TextBlock Text="ZONE INSPECTOR" FontSize="10" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,10"/>
 
                                     <!-- Zone Name & Color Header -->
                                     <Grid Margin="0,0,0,12">
@@ -354,54 +404,104 @@
                                                  FontWeight="Bold" FontSize="14" Margin="0,0,8,0"/>
                                         <Border Grid.Column="1" Width="30" Height="30" CornerRadius="6"
                                                 Background="{Binding SelectedZone.Color, Converter={StaticResource HexColorConverter}}"
-                                                BorderBrush="#3F3F46" BorderThickness="1"/>
+                                                BorderBrush="#CBD5E1" BorderThickness="1"/>
                                     </Grid>
 
                                     <!-- Color Swatches Palette -->
-                                    <TextBlock Text="Marker Color" FontSize="11" Foreground="#71717A" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Marker Color" FontSize="11" Foreground="#64748B" Margin="0,0,0,5"/>
                                     <WrapPanel Margin="0,0,0,14">
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#FFFFFF" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#FFFFFF"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#E4E4E7" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#E4E4E7"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#A1A1AA" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#A1A1AA"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#71717A" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#71717A"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#38BDF8" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#38BDF8"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#34D399" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#34D399"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#FBBF24" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#FBBF24"/>
-                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#F87171" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#F87171"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#2563EB" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#2563EB"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#16A34A" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#16A34A"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#D97706" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#D97706"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#DC2626" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#DC2626"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#9333EA" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#9333EA"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#0D9488" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#0D9488"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#EA580C" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#EA580C"/>
+                                        <Button Width="24" Height="24" Margin="0,0,6,0" Background="#4F46E5" Style="{StaticResource ModernBtn}" Click="OnColorSwatchClick" Tag="#4F46E5"/>
                                     </WrapPanel>
 
                                     <!-- Acoustic Calibration Card -->
-                                    <Border Background="#09090B" BorderBrush="#27272A" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,14">
+                                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,14">
                                         <StackPanel>
                                             <Grid Margin="0,0,0,8">
-                                                <TextBlock Text="Acoustic Calibration" FontWeight="Bold" FontSize="12" Foreground="#FAFAFA"/>
-                                                <Border HorizontalAlignment="Right" Background="#18181B" BorderBrush="#27272A" BorderThickness="1" CornerRadius="4" Padding="6,1">
+                                                <TextBlock Text="Paced Acoustic Calibration" FontWeight="Bold" FontSize="12" Foreground="#0F172A"/>
+                                                <Border HorizontalAlignment="Right" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,1">
                                                     <TextBlock Text="{Binding SelectedZone.SampleCount, StringFormat='{}{0} / 15 taps'}" 
-                                                               Foreground="#E4E4E7" FontSize="11" FontWeight="Bold"/>
+                                                               Foreground="#0F172A" FontSize="11" FontWeight="Bold"/>
                                                 </Border>
                                             </Grid>
 
-                                            <!-- Recording Active State Banner -->
-                                            <Border Background="#18181B" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10"
+                                            <!-- Paced Countdown Calibration Active Banner -->
+                                            <Border Background="#FFFFFF" BorderBrush="{Binding CountdownColor, Converter={StaticResource HexColorConverter}}" 
+                                                    BorderThickness="2" CornerRadius="8" Padding="12" Margin="0,0,0,10"
                                                     Visibility="{Binding IsRecording, Converter={StaticResource BoolToVisConverter}}">
                                                 <StackPanel>
-                                                    <TextBlock Text="{Binding RecordingPrompt}" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Margin="0,0,0,3"/>
-                                                    <TextBlock Text="{Binding RecordingProgress}" FontSize="11" Foreground="#A1A1AA" Margin="0,0,0,8"/>
-                                                    <Button Content="Cancel Recording" Command="{Binding StopRecordingCommand}" 
-                                                            Style="{StaticResource SecondaryBtn}" Padding="8,4" FontSize="11"/>
+                                                    <!-- Progress & Tap Target -->
+                                                    <Grid Margin="0,0,0,8">
+                                                        <TextBlock Text="{Binding RecordingProgress}" FontWeight="Bold" FontSize="12" Foreground="#0F172A"/>
+                                                        <TextBlock Text="{Binding CountdownStateLabel}" HorizontalAlignment="Right" 
+                                                                   FontWeight="Bold" FontSize="11" Foreground="{Binding CountdownColor, Converter={StaticResource HexColorConverter}}"/>
+                                                    </Grid>
+
+                                                    <!-- Giant Visual Countdown / Tap Now Indicator -->
+                                                    <Border Height="70" Background="#F8FAFC" CornerRadius="6" Margin="0,0,0,8">
+                                                        <TextBlock Text="{Binding CountdownText}" 
+                                                                   FontSize="34" FontWeight="Black" 
+                                                                   Foreground="{Binding CountdownColor, Converter={StaticResource HexColorConverter}}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+
+                                                    <!-- Instruction Prompt -->
+                                                    <TextBlock Text="{Binding RecordingPrompt}" FontWeight="SemiBold" FontSize="12" 
+                                                               Foreground="#0F172A" TextWrapping="Wrap" Margin="0,0,0,4"/>
+
+                                                    <!-- Diagnostic Metric Feedback (Peak, Crest, Duration, SNR) -->
+                                                    <TextBlock Text="{Binding DiagnosticText}" FontSize="10" 
+                                                               Foreground="#64748B" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                                                    <!-- Calibration Controls Row -->
+                                                    <Grid Margin="0,0,0,4">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Grid.Column="0" Content="Redo Last" Command="{Binding RedoLastTapCommand}" 
+                                                                Style="{StaticResource SecondaryBtn}" Padding="6,4" FontSize="10" Margin="0,0,3,0"/>
+                                                        <Button Grid.Column="1" Content="Pause/Resume" Command="{Binding TogglePauseCalibrationCommand}" 
+                                                                Style="{StaticResource SecondaryBtn}" Padding="6,4" FontSize="10" Margin="3,0,3,0"/>
+                                                        <Button Grid.Column="2" Content="Stop" Command="{Binding StopRecordingCommand}" 
+                                                                Style="{StaticResource DangerBtn}" Padding="6,4" FontSize="10" Margin="3,0,0,0"/>
+                                                    </Grid>
                                                 </StackPanel>
                                             </Border>
 
-                                            <!-- Normal Buttons -->
-                                            <Grid Visibility="{Binding IsRecording, Converter={StaticResource InvertBoolToVisConverter}}">
+                                            <!-- Normal Start Buttons (When not recording) -->
+                                            <StackPanel Visibility="{Binding IsRecording, Converter={StaticResource InvertBoolToVisConverter}}">
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Grid.Column="0" Content="Start Guided Calibration" Command="{Binding RecordZoneCommand}" 
+                                                            Style="{StaticResource ModernBtn}" Margin="0,0,6,0"/>
+                                                    <Button Grid.Column="1" Content="Clear" Command="{Binding ClearZoneTapsCommand}" 
+                                                            Style="{StaticResource SecondaryBtn}" Padding="10,5" ToolTip="Clear recorded tap samples"/>
+                                                </Grid>
+                                                <TextBlock Text="Paced countdown (3, 2, 1 ➔ TAP NOW!) records exactly 1 tap per round." 
+                                                           FontSize="10" Foreground="#64748B" TextWrapping="Wrap"/>
+                                            </StackPanel>
+
+                                            <!-- Dataset CSV Export / Inspection Button -->
+                                            <Grid Margin="0,10,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Button Grid.Column="0" Content="Record ~15 Taps" Command="{Binding RecordZoneCommand}" 
-                                                        Style="{StaticResource ModernBtn}" Margin="0,0,6,0"/>
-                                                <Button Grid.Column="1" Content="Clear" Command="{Binding ClearZoneTapsCommand}" 
-                                                        Style="{StaticResource SecondaryBtn}" Padding="10,5" ToolTip="Clear recorded tap samples"/>
+                                                <Button Grid.Column="0" Content="📁 View Tap Data (CSV)" Command="{Binding OpenRecordingsFolderCommand}" 
+                                                        Style="{StaticResource SecondaryBtn}" Padding="6,4" FontSize="10" Margin="0,0,4,0"/>
+                                                <Button Grid.Column="1" Content="Export CSV" Command="{Binding ExportTapDataCommand}" 
+                                                        Style="{StaticResource SecondaryBtn}" Padding="8,4" FontSize="10"/>
                                             </Grid>
                                         </StackPanel>
                                     </Border>
@@ -409,16 +509,16 @@
                                     <!-- Negative Example / Ignore Class Checkbox -->
                                     <CheckBox Content="Treat as Ignore class (speech, typing, clicks)" 
                                               IsChecked="{Binding SelectedZone.IsIgnore}" 
-                                              Foreground="#A1A1AA" FontSize="11" Margin="0,0,0,14"/>
+                                              Foreground="#475569" FontSize="11" Margin="0,0,0,14"/>
 
                                     <!-- Trigger Action Mapping Card -->
-                                    <Border Background="#09090B" BorderBrush="#27272A" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,14"
+                                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,14"
                                             Visibility="{Binding SelectedZone.IsIgnore, Converter={StaticResource InvertBoolToVisConverter}}">
                                         <StackPanel>
-                                            <TextBlock Text="Trigger Action" FontWeight="Bold" FontSize="12" Foreground="#FAFAFA" Margin="0,0,0,8"/>
+                                            <TextBlock Text="Trigger Action" FontWeight="Bold" FontSize="12" Foreground="#0F172A" Margin="0,0,0,8"/>
 
                                             <!-- Action Type Combo -->
-                                            <TextBlock Text="Action Type" FontSize="11" Foreground="#71717A" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Action Type" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
                                             <ComboBox SelectedValue="{Binding SelectedZone.ActionType}" SelectedValuePath="Tag" Margin="0,0,0,10">
                                                 <ComboBoxItem Content="No Action" Tag="{x:Static models:ActionType.None}"/>
                                                 <ComboBoxItem Content="Single Key Press" Tag="{x:Static models:ActionType.SingleKey}"/>
@@ -433,21 +533,21 @@
 
                                             <!-- Parameters for Single Key -->
                                             <StackPanel Visibility="{Binding SelectedZone.ActionType, Converter={x:Null}}">
-                                                <TextBlock Text="Key (e.g. Space, Enter, F5, A-Z)" FontSize="11" Foreground="#71717A" Margin="0,0,0,3"/>
+                                                <TextBlock Text="Key (e.g. Space, Enter, F5, A-Z)" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
                                                 <TextBox Text="{Binding SelectedZone.ActionKey, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
                                             </StackPanel>
 
                                             <!-- Modifiers for Shortcut -->
                                             <WrapPanel Margin="0,0,0,10">
-                                                <CheckBox Content="Ctrl" IsChecked="{Binding SelectedZone.HasCtrl}" Foreground="#E4E4E7" Margin="0,0,12,0"/>
-                                                <CheckBox Content="Alt" IsChecked="{Binding SelectedZone.HasAlt}" Foreground="#E4E4E7" Margin="0,0,12,0"/>
-                                                <CheckBox Content="Shift" IsChecked="{Binding SelectedZone.HasShift}" Foreground="#E4E4E7" Margin="0,0,12,0"/>
-                                                <CheckBox Content="Win" IsChecked="{Binding SelectedZone.HasWin}" Foreground="#E4E4E7"/>
+                                                <CheckBox Content="Ctrl" IsChecked="{Binding SelectedZone.HasCtrl}" Foreground="#0F172A" Margin="0,0,12,0"/>
+                                                <CheckBox Content="Alt" IsChecked="{Binding SelectedZone.HasAlt}" Foreground="#0F172A" Margin="0,0,12,0"/>
+                                                <CheckBox Content="Shift" IsChecked="{Binding SelectedZone.HasShift}" Foreground="#0F172A" Margin="0,0,12,0"/>
+                                                <CheckBox Content="Win" IsChecked="{Binding SelectedZone.HasWin}" Foreground="#0F172A"/>
                                             </WrapPanel>
 
                                             <!-- Target Path (URL or App) -->
                                             <StackPanel>
-                                                <TextBlock Text="Target Path or URL" FontSize="11" Foreground="#71717A" Margin="0,0,0,3"/>
+                                                <TextBlock Text="Target Path or URL" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
                                                 <Grid Margin="0,0,0,10">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
@@ -460,9 +560,9 @@
 
                                             <!-- Cooldown Slider -->
                                             <Grid Margin="0,0,0,3">
-                                                <TextBlock Text="Cooldown" FontSize="11" Foreground="#71717A"/>
+                                                <TextBlock Text="Cooldown" FontSize="11" Foreground="#64748B"/>
                                                 <TextBlock Text="{Binding SelectedZone.CooldownMs, StringFormat='{}{0} ms'}" 
-                                                           HorizontalAlignment="Right" FontSize="11" Foreground="#FFFFFF" FontWeight="Bold"/>
+                                                           HorizontalAlignment="Right" FontSize="11" Foreground="#0F172A" FontWeight="Bold"/>
                                             </Grid>
                                             <Slider Minimum="100" Maximum="2000" SmallChange="50" LargeChange="100" 
                                                     Value="{Binding SelectedZone.CooldownMs}"/>
@@ -471,17 +571,17 @@
 
                                     <!-- Delete Zone Button -->
                                     <Button Content="Delete This Zone" Command="{Binding DeleteZoneCommand}" 
-                                            Style="{StaticResource SecondaryBtn}" Foreground="#EF4444" Padding="10,6"/>
+                                            Style="{StaticResource DangerBtn}" Padding="10,6"/>
                                 </StackPanel>
                             </ScrollViewer>
 
                             <!-- Placeholder when no zone selected -->
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                         Visibility="{Binding HasSelectedZone, Converter={StaticResource InvertBoolToVisConverter}}">
-                                <TextBlock Text="⌖" FontSize="32" Foreground="#52525B" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                                <TextBlock Text="No Zone Selected" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Foreground="#FAFAFA"/>
+                                <TextBlock Text="⌖" FontSize="32" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                                <TextBlock Text="No Zone Selected" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Foreground="#0F172A"/>
                                 <TextBlock Text="Click a marker on the diagram or '+ Add Zone'." 
-                                           FontSize="11" Foreground="#71717A" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                           FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -491,52 +591,52 @@
                 <Grid x:Name="SettingsTabContent" Visibility="Collapsed">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel MaxWidth="680" HorizontalAlignment="Left">
-                            <TextBlock Text="SETTINGS &amp; HARDWARE" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,14"/>
+                            <TextBlock Text="SETTINGS &amp; HARDWARE" FontSize="16" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,14"/>
 
                             <!-- Card 1: Input Audio Device -->
-                            <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
                                 <StackPanel>
-                                    <TextBlock Text="Microphone Input Device" FontWeight="Bold" FontSize="13" Foreground="#FAFAFA" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Microphone Input Device" FontWeight="Bold" FontSize="13" Foreground="#0F172A" Margin="0,0,0,4"/>
                                     <TextBlock Text="Select the laptop's built-in microphone for chassis resonance detection." 
-                                               FontSize="11" Foreground="#71717A" Margin="0,0,0,10"/>
+                                               FontSize="11" Foreground="#64748B" Margin="0,0,0,10"/>
 
                                     <ComboBox ItemsSource="{Binding Devices}" DisplayMemberPath="Name" 
                                               SelectedItem="{Binding SelectedDevice}" Margin="0,0,0,8"/>
 
                                     <TextBlock Text="Default hardware microphone is automatically selected. If you disconnect an external device, capture restarts safely." 
-                                               FontSize="10" Foreground="#52525B"/>
+                                               FontSize="10" Foreground="#64748B"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Card 2: Tap Sensitivity -->
-                            <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
                                 <StackPanel>
                                     <Grid Margin="0,0,0,6">
-                                        <TextBlock Text="Tap Sensitivity" FontWeight="Bold" FontSize="13" Foreground="#FAFAFA"/>
+                                        <TextBlock Text="Tap Sensitivity" FontWeight="Bold" FontSize="13" Foreground="#0F172A"/>
                                         <TextBlock Text="{Binding Sensitivity, StringFormat='{}{0:P0}'}" 
-                                                   HorizontalAlignment="Right" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                   HorizontalAlignment="Right" FontWeight="Bold" Foreground="#0F172A"/>
                                     </Grid>
                                     <TextBlock Text="Controls the onset energy threshold above the ambient noise floor. Higher values detect lighter finger taps." 
-                                               FontSize="11" Foreground="#71717A" Margin="0,0,0,10"/>
+                                               FontSize="11" Foreground="#64748B" Margin="0,0,0,10"/>
 
                                     <Slider Minimum="0.0" Maximum="1.0" SmallChange="0.05" LargeChange="0.1" 
                                             Value="{Binding Sensitivity}" Margin="0,0,0,4"/>
 
                                     <Grid>
-                                        <TextBlock Text="Firm Taps Only" FontSize="10" Foreground="#52525B"/>
-                                        <TextBlock Text="Light Taps" FontSize="10" Foreground="#52525B" HorizontalAlignment="Right"/>
+                                        <TextBlock Text="Firm Taps Only" FontSize="10" Foreground="#64748B"/>
+                                        <TextBlock Text="Light Taps" FontSize="10" Foreground="#64748B" HorizontalAlignment="Right"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
 
                             <!-- Card 3: Windows Startup & Privacy Permissions -->
-                            <Border Background="#121214" BorderBrush="#27272A" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
                                 <StackPanel>
-                                    <TextBlock Text="Windows Integration &amp; Permissions" FontWeight="Bold" FontSize="13" Foreground="#FAFAFA" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Windows Integration &amp; Permissions" FontWeight="Bold" FontSize="13" Foreground="#0F172A" Margin="0,0,0,8"/>
 
                                     <CheckBox Content="Start Thrum minimized in tray with Windows" 
                                               IsChecked="{Binding StartWithWindows}" 
-                                              Foreground="#D4D4D8" FontSize="12" Margin="0,0,0,14"/>
+                                              Foreground="#334155" FontSize="12" Margin="0,0,0,14"/>
 
                                     <Grid Margin="0,0,0,6">
                                         <Grid.ColumnDefinitions>
@@ -544,9 +644,9 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Microphone Privacy Access" FontWeight="SemiBold" FontSize="12" Foreground="#FAFAFA"/>
+                                            <TextBlock Text="Microphone Privacy Access" FontWeight="SemiBold" FontSize="12" Foreground="#0F172A"/>
                                             <TextBlock Text="If audio capture fails, enable microphone access for desktop apps in Windows Settings." 
-                                                       FontSize="11" Foreground="#71717A"/>
+                                                       FontSize="11" Foreground="#64748B"/>
                                         </StackPanel>
                                         <Button Grid.Column="1" Content="Open Privacy Settings" Command="{Binding OpenMicSettingsCommand}" 
                                                 Style="{StaticResource SecondaryBtn}" Padding="10,5" FontSize="11"/>
@@ -555,10 +655,10 @@
                             </Border>
 
                             <!-- Card 4: Audio Enhancements Advisory -->
-                            <Border Background="#121214" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
                                 <StackPanel>
-                                    <TextBlock Text="Windows Audio Enhancements Warning" FontWeight="Bold" FontSize="13" Foreground="#FAFAFA" Margin="0,0,0,4"/>
-                                    <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#A1A1AA" Margin="0,0,0,10">
+                                    <TextBlock Text="Windows Audio Enhancements Warning" FontWeight="Bold" FontSize="13" Foreground="#0F172A" Margin="0,0,0,4"/>
+                                    <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#475569" Margin="0,0,0,10">
                                         Built-in laptop microphones often enable audio post-processing (noise reduction, beamforming, acoustic echo cancellation) by default. These algorithms can distort or cancel chassis resonance signatures. For highest accuracy, disable "Audio Enhancements" in Windows Sound Control Panel.
                                     </TextBlock>
                                     <Button Content="Open Sound Control Panel (mmsys.cpl)" Command="{Binding OpenSoundControlPanelCommand}" 
@@ -573,42 +673,45 @@
         </Grid>
 
         <!-- Training Result Modal Dialog Overlay -->
-        <Border Background="#DF000000" Visibility="{Binding ShowTrainingResultDialog, Converter={StaticResource BoolToVisConverter}}">
-            <Border Width="500" Background="#121214" BorderBrush="#3F3F46" BorderThickness="1.5" 
+        <Border Background="#90000000" Visibility="{Binding ShowTrainingResultDialog, Converter={StaticResource BoolToVisConverter}}">
+            <Border Width="500" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1.5" 
                     CornerRadius="14" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.2"/>
+                </Border.Effect>
                 <StackPanel>
                     <!-- Header -->
                     <Grid Margin="0,0,0,14">
-                        <TextBlock Text="Model Training Results" FontWeight="Bold" FontSize="16" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        <TextBlock Text="Model Training Results" FontWeight="Bold" FontSize="16" Foreground="#0F172A" VerticalAlignment="Center"/>
                         <Button Content="✕" Click="OnCloseTrainingDialogClick" Style="{StaticResource SecondaryBtn}" 
                                 HorizontalAlignment="Right" Padding="7,3" FontSize="11"/>
                     </Grid>
 
                     <!-- Accuracy Metric Banner -->
-                    <Border Background="#09090B" BorderBrush="#27272A" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,14">
+                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Held-Out Test Accuracy" FontSize="11" Foreground="#71717A"/>
+                                <TextBlock Text="Held-Out Test Accuracy" FontSize="11" Foreground="#64748B"/>
                                 <TextBlock Text="{Binding LatestTrainingResult.AccuracyPercent, StringFormat='{}{0:0.0}%'}" 
-                                           FontWeight="Black" FontSize="28" Foreground="#FFFFFF"/>
+                                           FontWeight="Black" FontSize="28" Foreground="#0F172A"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding LatestTrainingResult.MedianLatencyMs, StringFormat='Median Latency: {0:0.00} ms'}" 
-                                           FontSize="11" Foreground="#A1A1AA" HorizontalAlignment="Right"/>
+                                           FontSize="11" Foreground="#475569" HorizontalAlignment="Right"/>
                                 <TextBlock Text="{Binding LatestTrainingResult.HeldOutSamplesCount, StringFormat='Held-Out Samples: {0}'}" 
-                                           FontSize="11" Foreground="#71717A" HorizontalAlignment="Right"/>
+                                           FontSize="11" Foreground="#64748B" HorizontalAlignment="Right"/>
                                 <TextBlock Text="{Binding LatestTrainingResult.RejectedCount, StringFormat='Rejected Outliers: {0}'}" 
-                                           FontSize="11" Foreground="#71717A" HorizontalAlignment="Right"/>
+                                           FontSize="11" Foreground="#64748B" HorizontalAlignment="Right"/>
                             </StackPanel>
                         </Grid>
                     </Border>
 
                     <!-- Status Message -->
-                    <TextBlock Text="{Binding LatestTrainingResult.Message}" FontSize="11" Foreground="#A1A1AA" Margin="0,0,0,14"/>
+                    <TextBlock Text="{Binding LatestTrainingResult.Message}" FontSize="11" Foreground="#475569" Margin="0,0,0,14"/>
 
                     <!-- Close Button -->
                     <Button Content="Done &amp; Enable Live Mode" Click="OnCloseTrainingDialogClick" 

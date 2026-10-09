@@ -67,10 +67,10 @@ public sealed class ImpulseGate
     public ImpulseGate(
         int sampleRate = 16000,
         float minPeakAmplitude = 0.0020f,
-        float minSnrMultiplier = 1.6f,
-        float minCrestFactor = 1.9f,
-        float maxLateEarlyEnergyRatio = 0.85f,
-        float maxEffectiveDurationMs = 85.0f)
+        float minSnrMultiplier = 1.5f,
+        float minCrestFactor = 1.8f,
+        float maxLateEarlyEnergyRatio = 0.90f,
+        float maxEffectiveDurationMs = 95.0f)
     {
         _sampleRate = sampleRate;
         _minPeakAmplitude = minPeakAmplitude;
@@ -113,7 +113,7 @@ public sealed class ImpulseGate
         {
             return ImpulseGateResult.Reject(
                 ImpulseRejectionReason.TooQuiet,
-                "Too quiet (tap firmer)",
+                $"Too quiet (peak {peak:0.000} < {_minPeakAmplitude:0.000})",
                 peak, rms, crestFactor, 0f, 0f, snr);
         }
 
@@ -122,7 +122,7 @@ public sealed class ImpulseGate
         {
             return ImpulseGateResult.Reject(
                 ImpulseRejectionReason.LowCrestFactor,
-                "Low impulse (indistinct tap)",
+                $"Low sharpness (crest {crestFactor:0.1} < {_minCrestFactor:0.1})",
                 peak, rms, crestFactor, 0f, 0f, snr);
         }
 
@@ -152,7 +152,7 @@ public sealed class ImpulseGate
         {
             return ImpulseGateResult.Reject(
                 ImpulseRejectionReason.SustainedSound,
-                "Too long (sustained sound / voice)",
+                $"Sustained noise (ratio {lateEarlyRatio:0.2} > {_maxLateEarlyEnergyRatio:0.2})",
                 peak, rms, crestFactor, lateEarlyRatio, 0f, snr);
         }
 
@@ -173,7 +173,7 @@ public sealed class ImpulseGate
         {
             return ImpulseGateResult.Reject(
                 ImpulseRejectionReason.TooLong,
-                "Too long (duration exceeded)",
+                $"Too long ({durationMs:0}ms > {_maxEffectiveDurationMs:0}ms)",
                 peak, rms, crestFactor, lateEarlyRatio, durationMs, snr);
         }
 

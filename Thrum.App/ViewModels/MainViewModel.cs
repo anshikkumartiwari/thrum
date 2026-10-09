@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -33,10 +34,21 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
     private string _lastDetectedZoneName = string.Empty;
     private float _lastDetectedConfidence;
 
-    // Recording State
+    // Guided Countdown Recording State
     private bool _isRecording;
+    private int _currentTapNumber = 1;
+    private int _targetTapCount = 15;
+    private int _countdownNumber = 3;
+    private string _countdownText = "3";
+    private string _countdownColor = "#DC2626";
+    private string _countdownStateLabel = "GET READY";
     private string _recordingPrompt = string.Empty;
     private string _recordingProgress = string.Empty;
+    private string _diagnosticText = string.Empty;
+    private bool _isCalibrationPaused = false;
+    private int _calibrationStep = 3;
+    private int _tapWindowRemainingTicks = 0;
+    private readonly System.Windows.Threading.DispatcherTimer _calibrationTimer;
 
     // Training State
     private TrainingResult? _latestTrainingResult;
@@ -52,14 +64,14 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
 
     // Clean High-Contrast Palette
     public static readonly string[] PaletteColors = {
-        "#FFFFFF", // Pure White
-        "#E4E4E7", // Light Silver
-        "#A1A1AA", // Muted Gray
-        "#71717A", // Slate
-        "#38BDF8", // Ice Blue
-        "#34D399", // Mint Green
-        "#FBBF24", // Warm Amber
-        "#F87171"  // Coral
+        "#2563EB", // Royal Blue
+        "#16A34A", // Emerald Green
+        "#D97706", // Amber
+        "#DC2626", // Crimson
+        "#9333EA", // Purple
+        "#0D9488", // Teal
+        "#EA580C", // Orange
+        "#4F46E5"  // Indigo
     };
 
     public ObservableCollection<Profile> ProfilesList { get; } = new();
@@ -176,6 +188,54 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
         set => SetProperty(ref _recordingProgress, value);
     }
 
+    public int CurrentTapNumber
+    {
+        get => _currentTapNumber;
+        set => SetProperty(ref _currentTapNumber, value);
+    }
+
+    public int TargetTapCount
+    {
+        get => _targetTapCount;
+        set => SetProperty(ref _targetTapCount, value);
+    }
+
+    public int CountdownNumber
+    {
+        get => _countdownNumber;
+        set => SetProperty(ref _countdownNumber, value);
+    }
+
+    public string CountdownText
+    {
+        get => _countdownText;
+        set => SetProperty(ref _countdownText, value);
+    }
+
+    public string CountdownColor
+    {
+        get => _countdownColor;
+        set => SetProperty(ref _countdownColor, value);
+    }
+
+    public string CountdownStateLabel
+    {
+        get => _countdownStateLabel;
+        set => SetProperty(ref _countdownStateLabel, value);
+    }
+
+    public string DiagnosticText
+    {
+        get => _diagnosticText;
+        set => SetProperty(ref _diagnosticText, value);
+    }
+
+    public bool IsCalibrationPaused
+    {
+        get => _isCalibrationPaused;
+        set => SetProperty(ref _isCalibrationPaused, value);
+    }
+
     public TrainingResult? LatestTrainingResult
     {
         get => _latestTrainingResult;
@@ -243,6 +303,10 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
     public RelayCommand ClearZoneTapsCommand { get; }
     public RelayCommand RecordZoneCommand { get; }
     public RelayCommand StopRecordingCommand { get; }
+    public RelayCommand RedoLastTapCommand { get; }
+    public RelayCommand TogglePauseCalibrationCommand { get; }
+    public RelayCommand OpenRecordingsFolderCommand { get; }
+    public RelayCommand ExportTapDataCommand { get; }
     public RelayCommand TrainModelCommand { get; }
     public RelayCommand ToggleListeningCommand { get; }
     public RelayCommand OpenMicSettingsCommand { get; }
@@ -268,6 +332,12 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
         _actionExecutor = new ActionExecutor(_actionRunner);
         _audioPipeline = new AudioPipeline();
 
+        _calibrationTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _calibrationTimer.Tick += OnCalibrationTimerTick;
+
         // Wire Audio Pipeline Events
         _audioPipeline.AudioLevelUpdated += (level, floor) =>
         {
@@ -278,14 +348,22 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             });
         };
 
-        _audioPipeline.TapRejected += (reason, message) =>
+        _audioPipeline.TapRejected += (reason, message, result) =>
         {
             Application.Current?.Dispatcher.InvokeAsync(() =>
             {
                 StatusMessage = $"Tap rejected: {message}";
-                if (IsRecording)
+                if (IsRecording && SelectedZone != null)
                 {
-                    RecordingPrompt = $"Tap rejected: {message}. Tap slightly firmer.";
+                    CountdownColor = "#DC2626";
+                    CountdownText = "REJECTED";
+                    CountdownStateLabel = reason.ToString().ToUpperInvariant();
+                    RecordingPrompt = $"✕ {message}. Retrying Tap {CurrentTapNumber}...";
+                    DiagnosticText = $"Peak: {result.PeakAmplitude:0.003} | Crest: {result.CrestFactor:0.1} | Dur: {result.EffectiveDurationMs:0}ms";
+
+                    TapDataExporter.AppendRejectedSample(_activeProfile.Name, SelectedZone.Name, result);
+                    _audioPipeline.IsAwaitingRecordingTap = false;
+                    _calibrationStep = 4; // Restart countdown 3, 2, 1
                 }
             });
         };
@@ -296,31 +374,54 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             {
                 if (IsRecording && SelectedZone != null)
                 {
+                    var sample = new TapFeatureSample(
+                        SelectedZone.Id,
+                        SelectedZone.Name,
+                        CurrentTapNumber,
+                        feats,
+                        result.PeakAmplitude,
+                        result.Rms,
+                        result.CrestFactor,
+                        result.LateEarlyEnergyRatio,
+                        result.EffectiveDurationMs,
+                        result.SnrRatio);
+
+                    _activeProfile.TrainingSamples.Add(sample);
+                    TapDataExporter.AppendAcceptedSample(_activeProfile.Name, sample);
+
+                    SelectedZone.SampleCount = CurrentTapNumber;
                     SelectedZone.Flash();
-                    RecordingPrompt = $"Tap accepted! Keep tapping {SelectedZone.Name}...";
+
+                    CountdownColor = "#16A34A";
+                    CountdownText = "RECORDED!";
+                    CountdownStateLabel = $"TAP {CurrentTapNumber} SAVED";
+                    RecordingPrompt = $"✓ Tap {CurrentTapNumber} captured! Peak: {result.PeakAmplitude:0.003}, Crest: {result.CrestFactor:0.1}";
+                    DiagnosticText = $"Peak: {result.PeakAmplitude:0.003} | Crest: {result.CrestFactor:0.1} | Dur: {result.EffectiveDurationMs:0}ms | SNR: {result.SnrRatio:0.1}x";
+                    StatusMessage = $"Recorded tap {CurrentTapNumber} of {TargetTapCount} for '{SelectedZone.Name}'.";
+
+                    if (CurrentTapNumber >= TargetTapCount)
+                    {
+                        _calibrationTimer.Stop();
+                        _audioPipeline.IsAwaitingRecordingTap = false;
+                        _audioPipeline.StartLiveMode();
+                        IsRecording = false;
+                        SelectedZone.IsRecording = false;
+                        _profileStore.SaveActiveProfile(_activeProfile);
+                        TapDataExporter.ExportProfileTapsToCsv(_activeProfile, TapDataExporter.GetDefaultCsvPath(_activeProfile.Name));
+                        StatusMessage = $"Calibration complete for '{SelectedZone.Name}' (15 taps recorded).";
+                        OnPropertyChanged(nameof(CanTrain));
+                    }
+                    else
+                    {
+                        CurrentTapNumber++;
+                        RecordingProgress = $"Tap {CurrentTapNumber} of {TargetTapCount}";
+                        _calibrationStep = 4;
+                    }
+                }
+                else if (!IsRecording && SelectedZone != null)
+                {
+                    SelectedZone.Flash();
                     StatusMessage = $"Accepted tap! Peak: {result.PeakAmplitude:0.003}, Crest: {result.CrestFactor:0.1}";
-                }
-            });
-        };
-
-        _audioPipeline.SampleRecorded += (zoneId, current, target) =>
-        {
-            Application.Current?.Dispatcher.InvokeAsync(() =>
-            {
-                var zoneVm = Zones.FirstOrDefault(z => z.Id == zoneId);
-                if (zoneVm != null)
-                {
-                    zoneVm.SampleCount = current;
-                    OnPropertyChanged(nameof(CanTrain));
-                }
-
-                RecordingProgress = $"Taps recorded: {current} / {target}";
-
-                if (current >= target)
-                {
-                    StopRecording();
-                    StatusMessage = $"Recording complete for '{zoneVm?.Name}' ({target} taps).";
-                    _profileStore.SaveActiveProfile(_activeProfile);
                 }
             });
         };
@@ -333,6 +434,10 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
         ClearZoneTapsCommand = new RelayCommand(ClearSelectedZoneTaps, () => HasSelectedZone);
         RecordZoneCommand = new RelayCommand(StartRecordingSelectedZone, () => HasSelectedZone && !IsRecording);
         StopRecordingCommand = new RelayCommand(StopRecording, () => IsRecording);
+        RedoLastTapCommand = new RelayCommand(RedoLastTap, () => IsRecording && CurrentTapNumber > 1);
+        TogglePauseCalibrationCommand = new RelayCommand(TogglePauseCalibration, () => IsRecording);
+        OpenRecordingsFolderCommand = new RelayCommand(OpenRecordingsFolder);
+        ExportTapDataCommand = new RelayCommand(ExportTapData);
         TrainModelCommand = new RelayCommand(TrainModel, () => CanTrain);
         ToggleListeningCommand = new RelayCommand(() => IsListening = !IsListening);
         OpenMicSettingsCommand = new RelayCommand(OpenMicSettings);
@@ -515,50 +620,195 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
     {
         if (SelectedZone == null) return;
 
+        // Clear previous taps for this zone for a fresh clean calibration
+        _activeProfile.TrainingSamples.RemoveAll(s => s.ZoneId == SelectedZone.Id);
+        SelectedZone.SampleCount = 0;
+
+        CurrentTapNumber = 1;
+        TargetTapCount = 15;
         IsRecording = true;
         SelectedZone.IsRecording = true;
-        RecordingPrompt = $"Tap '{SelectedZone.Name}' ~15 times.";
-        RecordingProgress = $"Taps recorded: {SelectedZone.SampleCount} / 15";
+        IsCalibrationPaused = false;
 
-        // Listen for new taps
-        Action<float[], ImpulseGateResult>? tapHandler = null;
-        tapHandler = (feats, _) =>
-        {
-            _activeProfile.TrainingSamples.Add(new TapFeatureSample(SelectedZone.Id, feats));
-        };
+        RecordingProgress = $"Tap 1 of {TargetTapCount}";
+        CountdownNumber = 3;
+        CountdownText = "3";
+        CountdownColor = "#DC2626";
+        CountdownStateLabel = "GET READY...";
+        RecordingPrompt = $"Get ready to tap '{SelectedZone.Name}'...";
+        DiagnosticText = "Waiting for countdown to reach green...";
 
-        _audioPipeline.TapAccepted += tapHandler;
-
-        // When recording finishes or cancels, detach handler
-        void CleanUpRecording()
-        {
-            _audioPipeline.TapAccepted -= tapHandler;
-            if (SelectedZone != null) SelectedZone.IsRecording = false;
-            IsRecording = false;
-        }
-
-        _audioPipeline.SampleRecorded += (zid, cur, tgt) =>
-        {
-            if (cur >= tgt)
-            {
-                CleanUpRecording();
-            }
-        };
+        _audioPipeline.IsAwaitingRecordingTap = false;
+        _calibrationStep = 3;
 
         if (!_audioPipeline.IsCapturing)
         {
             _audioPipeline.StartCapture(SelectedDevice?.Id);
         }
-        _audioPipeline.StartRecording(SelectedZone.Id, 15);
-        StatusMessage = $"Recording mode active. {RecordingPrompt}";
+        _audioPipeline.StartRecording(SelectedZone.Id, TargetTapCount);
+
+        _calibrationTimer.Start();
+        StatusMessage = $"Calibration started for '{SelectedZone.Name}'. Tap on GREEN!";
+    }
+
+    private void OnCalibrationTimerTick(object? sender, EventArgs e)
+    {
+        if (!_isRecording || _isCalibrationPaused || SelectedZone == null) return;
+
+        if (_calibrationStep == 4) // Inter-tap transition delay
+        {
+            _calibrationStep = 3;
+            CountdownNumber = 3;
+            CountdownText = "3";
+            CountdownColor = "#DC2626"; // Bright Red
+            CountdownStateLabel = "GET READY...";
+            RecordingPrompt = $"Get ready to tap '{SelectedZone.Name}'...";
+            _audioPipeline.IsAwaitingRecordingTap = false;
+            return;
+        }
+
+        if (_calibrationStep == 3)
+        {
+            _calibrationStep = 2;
+            CountdownNumber = 2;
+            CountdownText = "2";
+            CountdownColor = "#DC2626"; // Bright Red
+            CountdownStateLabel = "GET READY...";
+            RecordingPrompt = $"Get ready to tap '{SelectedZone.Name}'...";
+            _audioPipeline.IsAwaitingRecordingTap = false;
+            return;
+        }
+
+        if (_calibrationStep == 2)
+        {
+            _calibrationStep = 1;
+            CountdownNumber = 1;
+            CountdownText = "1";
+            CountdownColor = "#EA580C"; // Deep Amber/Orange
+            CountdownStateLabel = "READY...";
+            RecordingPrompt = $"Strike '{SelectedZone.Name}' when it turns green!";
+            _audioPipeline.IsAwaitingRecordingTap = false;
+            return;
+        }
+
+        if (_calibrationStep == 1)
+        {
+            // Turn GREEN!
+            _calibrationStep = 0;
+            CountdownNumber = 0;
+            CountdownText = "TAP NOW!";
+            CountdownColor = "#16A34A"; // Vibrant Green
+            CountdownStateLabel = "● STRIKE FIRMLY NOW";
+            RecordingPrompt = $"TAP '{SelectedZone.Name}' SHARPLY NOW!";
+            _tapWindowRemainingTicks = 3; // 3 seconds listening window
+            _audioPipeline.IsAwaitingRecordingTap = true;
+            return;
+        }
+
+        if (_calibrationStep == 0)
+        {
+            // Still waiting for tap in the green window
+            _tapWindowRemainingTicks--;
+            if (_tapWindowRemainingTicks <= 0)
+            {
+                // Timeout without tap
+                _audioPipeline.IsAwaitingRecordingTap = false;
+                CountdownColor = "#DC2626";
+                CountdownText = "MISSED";
+                CountdownStateLabel = "NO TAP DETECTED";
+                RecordingPrompt = $"Tap window missed. Retrying Tap {CurrentTapNumber}...";
+                _calibrationStep = 4; // Restart countdown next tick
+            }
+        }
     }
 
     public void StopRecording()
     {
+        _calibrationTimer.Stop();
         IsRecording = false;
         if (SelectedZone != null) SelectedZone.IsRecording = false;
+        _audioPipeline.IsAwaitingRecordingTap = false;
         _audioPipeline.StartLiveMode();
-        StatusMessage = "Recording cancelled.";
+        StatusMessage = "Calibration stopped.";
+    }
+
+    private void RedoLastTap()
+    {
+        if (!IsRecording || SelectedZone == null || CurrentTapNumber <= 1) return;
+
+        // Discard the last sample for this zone
+        int lastIdx = _activeProfile.TrainingSamples.FindLastIndex(s => s.ZoneId == SelectedZone.Id);
+        if (lastIdx >= 0)
+        {
+            _activeProfile.TrainingSamples.RemoveAt(lastIdx);
+        }
+
+        CurrentTapNumber--;
+        SelectedZone.SampleCount = CurrentTapNumber - 1;
+        RecordingProgress = $"Tap {CurrentTapNumber} of {TargetTapCount}";
+        StatusMessage = $"Redoing Tap {CurrentTapNumber}...";
+
+        _audioPipeline.IsAwaitingRecordingTap = false;
+        _calibrationStep = 4;
+    }
+
+    private void TogglePauseCalibration()
+    {
+        if (!IsRecording) return;
+        IsCalibrationPaused = !IsCalibrationPaused;
+        if (IsCalibrationPaused)
+        {
+            _audioPipeline.IsAwaitingRecordingTap = false;
+            CountdownText = "PAUSED";
+            CountdownColor = "#64748B";
+            CountdownStateLabel = "CALIBRATION PAUSED";
+            RecordingPrompt = "Calibration paused. Click Resume to continue.";
+        }
+        else
+        {
+            _calibrationStep = 4;
+            RecordingPrompt = "Resuming countdown...";
+        }
+    }
+
+    private void OpenRecordingsFolder()
+    {
+        try
+        {
+            string dir = TapDataExporter.GetRecordingsDirectory();
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = dir,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error opening recordings folder: {ex.Message}";
+        }
+    }
+
+    private void ExportTapData()
+    {
+        try
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export Tap Recordings Dataset",
+                Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*",
+                FileName = $"{_activeProfile.Name}_taps.csv"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                TapDataExporter.ExportProfileTapsToCsv(_activeProfile, dialog.FileName);
+                StatusMessage = $"Exported tap dataset to '{Path.GetFileName(dialog.FileName)}'.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Export failed: {ex.Message}";
+        }
     }
 
     private void TrainModel()
@@ -711,6 +961,7 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
 
     public void Dispose()
     {
+        _calibrationTimer.Stop();
         _audioPipeline.Dispose();
     }
 }

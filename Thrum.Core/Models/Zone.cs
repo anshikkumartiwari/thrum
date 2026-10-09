@@ -35,8 +35,19 @@ public sealed class Zone
 public sealed class TapFeatureSample
 {
     public string ZoneId { get; set; } = string.Empty;
-    public float[] Features { get; set; } = Array.Empty<float>();
+    public string ZoneName { get; set; } = string.Empty;
+    public int TapIndex { get; set; } = 1;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    // Acoustic Diagnostic Metrics
+    public float PeakAmplitude { get; set; }
+    public float Rms { get; set; }
+    public float CrestFactor { get; set; }
+    public float LateEarlyEnergyRatio { get; set; }
+    public float EffectiveDurationMs { get; set; }
+    public float SnrRatio { get; set; }
+
+    public float[] Features { get; set; } = Array.Empty<float>();
 
     public TapFeatureSample() { }
 
@@ -45,5 +56,30 @@ public sealed class TapFeatureSample
         ZoneId = zoneId;
         Features = features;
         Timestamp = DateTime.UtcNow;
+    }
+
+    public TapFeatureSample(
+        string zoneId,
+        string zoneName,
+        int tapIndex,
+        float[] features,
+        float peak,
+        float rms,
+        float crest,
+        float lateEarlyRatio,
+        float durationMs,
+        float snr)
+    {
+        ZoneId = zoneId;
+        ZoneName = zoneName;
+        TapIndex = tapIndex;
+        Features = features;
+        Timestamp = DateTime.UtcNow;
+        PeakAmplitude = peak;
+        Rms = rms;
+        CrestFactor = crest;
+        LateEarlyEnergyRatio = lateEarlyRatio;
+        EffectiveDurationMs = durationMs;
+        SnrRatio = snr;
     }
 }
