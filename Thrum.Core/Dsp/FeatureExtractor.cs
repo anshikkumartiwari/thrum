@@ -136,14 +136,16 @@ public sealed class FeatureExtractor
         outputVector[4] = earlyEnergyRatio;
 
         // 2. Frequency-Domain (FFT)
-        // Window the event signal and zero-pad to _fftSize
+        // Window the event signal, scale-normalized by peak amplitude so spectral features
+        // capture pure chassis resonance timbre independently of tap strike loudness.
         Array.Clear(_realBuffer, 0, _realBuffer.Length);
         Array.Clear(_imagBuffer, 0, _imagBuffer.Length);
 
+        float invPeak = peak > 1e-5f ? (1.0f / peak) : 1.0f;
         int copyLen = Math.Min(eventWindow.Length, _fftSize);
         for (int i = 0; i < copyLen; i++)
         {
-            _realBuffer[i] = eventWindow[i] * _hannWindow[i];
+            _realBuffer[i] = (eventWindow[i] * invPeak) * _hannWindow[i];
         }
 
         _fft.Forward(_realBuffer, _imagBuffer);

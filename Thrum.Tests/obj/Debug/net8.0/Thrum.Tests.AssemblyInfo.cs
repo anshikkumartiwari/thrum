@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Thrum.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92bfc671b853eca2e6f4a73b8a80be8f91efbe07")]
 [assembly: System.Reflection.AssemblyProductAttribute("Thrum.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Thrum.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

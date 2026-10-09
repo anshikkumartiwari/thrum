@@ -23,14 +23,15 @@ public static class SyntheticAudioGenerator
         float decayTimeMs = 20f,
         float peakAmplitude = 0.5f,
         float noiseLevel = 0.002f,
-        float onsetDelayMs = 40f)
+        float onsetDelayMs = 40f,
+        int? seed = null)
     {
         int totalSamples = (int)(sampleRate * (durationMs / 1000f));
         int onsetSample = (int)(sampleRate * (onsetDelayMs / 1000f));
         float tauSamples = sampleRate * (decayTimeMs / 1000f);
 
         float[] buffer = new float[totalSamples];
-        var random = new Random(42);
+        var random = seed.HasValue ? new Random(seed.Value) : new Random();
 
         for (int i = 0; i < totalSamples; i++)
         {
