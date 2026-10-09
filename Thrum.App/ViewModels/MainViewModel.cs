@@ -1,12 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using Thrum.App.Services;
 using Thrum.Core.Actions;
 using Thrum.Core.Capture;
 using Thrum.Core.Classification;
 using Thrum.Core.Dsp;
+using Thrum.Core.Logging;
 using Thrum.Core.Models;
 using Thrum.Core.Storage;
 
@@ -14,6 +16,7 @@ namespace Thrum.App.ViewModels;
 
 public sealed class MainViewModel : BaseViewModel, IDisposable
 {
+    private readonly ILogger _logger;
     private readonly ProfileStore _profileStore;
     private readonly AudioPipeline _audioPipeline;
     private readonly ActionExecutor _actionExecutor;
@@ -245,6 +248,13 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
 
     public MainViewModel()
     {
+        using var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddProvider(new FileLoggerProvider());
+        });
+        _logger = loggerFactory.CreateLogger("Thrum.App");
+        _logger.LogInformation("Thrum starting up. Initializing audio and profile subsystems.");
+
         _profileStore = new ProfileStore();
         _activeProfile = _profileStore.LoadActiveProfile();
 
@@ -554,10 +564,14 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             _activeProfile.SaveClassifier(classifier, result.AccuracyPercent);
             _profileStore.SaveActiveProfile(_activeProfile);
 
+            _logger.LogInformation("Model trained successfully across {ZoneCount} zones with {Accuracy:0.0}% accuracy. Median latency: {Latency:0.00}ms.",
+                activeZones.Count, result.AccuracyPercent, result.MedianLatencyMs);
+
             StatusMessage = $"Model trained! Accuracy: {result.AccuracyPercent:0.0}% across {activeZones.Count} zones.";
         }
         else
         {
+            _logger.LogWarning("Model training failed: {Message}", result.Message);
             StatusMessage = $"Training failed: {result.Message}";
         }
     }
@@ -578,18 +592,23 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
                     if (!result.IsIgnoreZone)
                     {
                         bool executed = _actionExecutor.TryExecute(matchedVm.Model);
+                        _logger.LogInformation("Tap detected on zone '{Zone}' (confidence: {Confidence:0.00}, distance: {Dist:0.1}). Action executed: {Executed}.",
+                            matchedVm.Name, result.Confidence, result.MahalanobisDistance, executed);
+
                         StatusMessage = executed
                             ? $"Triggered {matchedVm.Name} (Conf: {result.Confidence * 100:0.0}%) -> {matchedVm.ActionSummary}"
                             : $"Cooldown blocked {matchedVm.Name}";
                     }
                     else
                     {
+                        _logger.LogInformation("Environmental noise classified into ignore zone '{Zone}'. No action taken.", matchedVm.Name);
                         StatusMessage = $"Ignored environmental noise ({matchedVm.Name}).";
                     }
                 }
             }
             else
             {
+                _logger.LogDebug("Impulse rejected: {Reason}", result.RejectionReason);
                 StatusMessage = $"Tap rejected: {result.RejectionReason}";
             }
         });
