@@ -12,6 +12,7 @@
         Title="Thrum — Acoustic Chassis Tap Localization" 
         Height="720" Width="1060" MinHeight="640" MinWidth="940"
         WindowStartupLocation="CenterScreen"
+        Icon="/Assets/app.ico"
         Background="#0B1120" Foreground="#F8FAFC">
 
     <Window.Resources>
@@ -104,6 +105,7 @@
         <!-- System Tray Icon -->
         <tb:TaskbarIcon x:Name="TrayIcon"
                         ToolTipText="Thrum — Tap Chassis To Trigger Actions"
+                        IconSource="/Assets/app.ico"
                         TrayLeftMouseDown="OnTrayIconClick">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu Background="#1E293B" Foreground="#F8FAFC" BorderBrush="#334155">
