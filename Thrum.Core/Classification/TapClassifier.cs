@@ -19,12 +19,12 @@ public sealed class TapClassifier
 
     public TrainingResult Train(IReadOnlyList<Zone> zones, IReadOnlyList<TapFeatureSample> samples)
     {
-        if (zones.Count < 2)
+        if (zones.Count < 1)
         {
             return new TrainingResult
             {
                 Success = false,
-                Message = "At least 2 zones are required for classification."
+                Message = "At least 1 zone with recorded taps is required."
             };
         }
 
@@ -101,8 +101,15 @@ public sealed class TapClassifier
             testXNorm.Add(Stats.Normalize(testX[i]));
         }
 
-        // 2. Fit Ridge Multinomial Logistic Regression Model
-        Model = MultinomialLogisticRegression.Fit(trainXNorm, trainY, numClasses, numFeatures);
+        // 2. Fit Models
+        if (numClasses >= 2)
+        {
+            Model = MultinomialLogisticRegression.Fit(trainXNorm, trainY, numClasses, numFeatures);
+        }
+        else
+        {
+            Model = null;
+        }
 
         // 3. Fit Mahalanobis Outlier Detector
         OutlierDetector = OutlierDetector.Fit(trainXNorm, trainY, numClasses, numFeatures);
@@ -122,33 +129,54 @@ public sealed class TapClassifier
             int actualClass = testY[i];
 
             var sw = Stopwatch.StartNew();
-            Model.PredictProbabilities(sample, probSpan);
 
-            // Find best class
-            int predictedClass = 0;
-            float maxProb = probSpan[0];
-            for (int c = 1; c < numClasses; c++)
+            if (numClasses >= 2 && Model != null)
             {
-                if (probSpan[c] > maxProb)
+                Model.PredictProbabilities(sample, probSpan);
+
+                // Find best class
+                int predictedClass = 0;
+                float maxProb = probSpan[0];
+                for (int c = 1; c < numClasses; c++)
                 {
-                    maxProb = probSpan[c];
-                    predictedClass = c;
+                    if (probSpan[c] > maxProb)
+                    {
+                        maxProb = probSpan[c];
+                        predictedClass = c;
+                    }
                 }
-            }
 
-            bool isOutlier = OutlierDetector.IsOutlier(sample, predictedClass, out float dist, out _);
-            sw.Stop();
-            latencies.Add(sw.Elapsed.TotalMilliseconds);
+                bool isOutlier = OutlierDetector.IsOutlier(sample, predictedClass, out float dist, out _);
+                sw.Stop();
+                latencies.Add(sw.Elapsed.TotalMilliseconds);
 
-            if (maxProb < MinConfidenceThreshold || isOutlier)
-            {
-                rejectedCount++;
+                if (maxProb < MinConfidenceThreshold || isOutlier)
+                {
+                    rejectedCount++;
+                }
+                else
+                {
+                    confusionMatrix.Add(actualClass, predictedClass);
+                    if (predictedClass == actualClass)
+                    {
+                        correctPredictions++;
+                    }
+                }
             }
             else
             {
-                confusionMatrix.Add(actualClass, predictedClass);
-                if (predictedClass == actualClass)
+                // Single-zone evaluation
+                bool isOutlier = OutlierDetector.IsOutlier(sample, 0, out float dist, out _);
+                sw.Stop();
+                latencies.Add(sw.Elapsed.TotalMilliseconds);
+
+                if (isOutlier)
                 {
+                    rejectedCount++;
+                }
+                else
+                {
+                    confusionMatrix.Add(0, 0);
                     correctPredictions++;
                 }
             }
@@ -160,10 +188,14 @@ public sealed class TapClassifier
 
         IsTrained = true;
 
+        string successMsg = numClasses == 1
+            ? $"Single-zone acoustic signature template fitted with {accuracy:0.0}% verification accuracy."
+            : $"Model successfully trained across {numClasses} zones with {accuracy:0.0}% accuracy.";
+
         return new TrainingResult
         {
             Success = true,
-            Message = $"Model successfully trained across {numClasses} zones with {accuracy:0.0}% accuracy.",
+            Message = successMsg,
             AccuracyPercent = accuracy,
             TotalSamples = samples.Count,
             TrainSamplesCount = trainX.Count,
@@ -179,7 +211,7 @@ public sealed class TapClassifier
     /// </summary>
     public ClassificationResult Classify(ReadOnlySpan<float> rawFeatures)
     {
-        if (!IsTrained || Model == null || Stats == null || OutlierDetector == null || TrainedZones.Count == 0)
+        if (!IsTrained || Stats == null || OutlierDetector == null || TrainedZones.Count == 0)
         {
             return ClassificationResult.Rejected("Classifier is not trained.");
         }
@@ -188,6 +220,32 @@ public sealed class TapClassifier
         Span<float> normalized = stackalloc float[rawFeatures.Length];
         rawFeatures.CopyTo(normalized);
         Stats.NormalizeInPlace(normalized);
+
+        if (numClasses == 1)
+        {
+            bool isOutlier = OutlierDetector.IsOutlier(normalized, 0, out float distance, out float threshold);
+            float confidence = Math.Clamp(1.0f - (distance / (threshold * 1.5f)), 0.0f, 1.0f);
+
+            if (isOutlier)
+            {
+                return ClassificationResult.Rejected(
+                    $"Outlier acoustic signature (dist {distance:0.1} > {threshold:0.1})", confidence, distance);
+            }
+
+            var matchedZone = TrainedZones[0];
+            return ClassificationResult.Accepted(
+                matchedZone.Id,
+                matchedZone.Name,
+                confidence,
+                distance,
+                threshold,
+                matchedZone.IsIgnore);
+        }
+
+        if (Model == null)
+        {
+            return ClassificationResult.Rejected("Classifier model is not trained.");
+        }
 
         Span<float> probs = stackalloc float[numClasses];
         Model.PredictProbabilities(normalized, probs);
@@ -203,27 +261,27 @@ public sealed class TapClassifier
             }
         }
 
-        bool isOutlier = OutlierDetector.IsOutlier(normalized, bestClass, out float distance, out float threshold);
+        bool isMultiOutlier = OutlierDetector.IsOutlier(normalized, bestClass, out float mDistance, out float mThreshold);
 
         if (maxProb < MinConfidenceThreshold)
         {
             return ClassificationResult.Rejected(
-                $"Low confidence ({(maxProb * 100f):0.0}%)", maxProb, distance);
+                $"Low confidence ({(maxProb * 100f):0.0}%)", maxProb, mDistance);
         }
 
-        if (isOutlier)
+        if (isMultiOutlier)
         {
             return ClassificationResult.Rejected(
-                $"Outlier acoustic signature (dist {distance:0.1} > {threshold:0.1})", maxProb, distance);
+                $"Outlier acoustic signature (dist {mDistance:0.1} > {mThreshold:0.1})", maxProb, mDistance);
         }
 
-        var matchedZone = TrainedZones[bestClass];
+        var matchedMultiZone = TrainedZones[bestClass];
         return ClassificationResult.Accepted(
-            matchedZone.Id,
-            matchedZone.Name,
+            matchedMultiZone.Id,
+            matchedMultiZone.Name,
             maxProb,
-            distance,
-            threshold,
-            matchedZone.IsIgnore);
+            mDistance,
+            mThreshold,
+            matchedMultiZone.IsIgnore);
     }
 }

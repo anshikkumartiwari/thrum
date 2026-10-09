@@ -28,9 +28,8 @@ public sealed class Profile
     /// </summary>
     public TapClassifier? RestoreClassifier()
     {
-        if (FeatureStats == null || ModelWeights == null || ModelBiases == null ||
-            OutlierCentroids == null || OutlierVariances == null || OutlierThresholds == null ||
-            TrainedZoneIds == null || TrainedZoneIds.Count < 2)
+        if (FeatureStats == null || OutlierCentroids == null || OutlierVariances == null ||
+            OutlierThresholds == null || TrainedZoneIds == null || TrainedZoneIds.Count < 1)
         {
             return null;
         }
@@ -52,13 +51,13 @@ public sealed class Profile
         var classifier = new TapClassifier
         {
             Stats = FeatureStats,
-            Model = new MultinomialLogisticRegression
+            Model = (ModelWeights != null && ModelBiases != null) ? new MultinomialLogisticRegression
             {
                 NumClasses = trainedZones.Count,
                 NumFeatures = FeatureStats.FeatureDimension,
                 Weights = (float[])ModelWeights.Clone(),
                 Biases = (float[])ModelBiases.Clone()
-            },
+            } : null,
             OutlierDetector = new OutlierDetector
             {
                 NumClasses = trainedZones.Count,
@@ -82,12 +81,11 @@ public sealed class Profile
     /// </summary>
     public void SaveClassifier(TapClassifier classifier, double accuracy)
     {
-        if (!classifier.IsTrained || classifier.Model == null || classifier.Stats == null ||
-            classifier.OutlierDetector == null) return;
+        if (!classifier.IsTrained || classifier.Stats == null || classifier.OutlierDetector == null) return;
 
         FeatureStats = classifier.Stats;
-        ModelWeights = (float[])classifier.Model.Weights.Clone();
-        ModelBiases = (float[])classifier.Model.Biases.Clone();
+        ModelWeights = classifier.Model != null ? (float[])classifier.Model.Weights.Clone() : null;
+        ModelBiases = classifier.Model != null ? (float[])classifier.Model.Biases.Clone() : null;
         OutlierCentroids = classifier.OutlierDetector.Centroids;
         OutlierVariances = classifier.OutlierDetector.Variances;
         OutlierThresholds = classifier.OutlierDetector.MaxToleratedDistances;

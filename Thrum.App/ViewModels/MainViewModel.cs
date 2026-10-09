@@ -295,7 +295,18 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
         set => SetProperty(ref _showGuidedFlow, value);
     }
 
-    public bool CanTrain => Zones.Count(z => z.SampleCount >= 10) >= 2;
+    public bool CanTrain => Zones.Count(z => z.SampleCount >= 10) >= 1;
+
+    public string TrainButtonToolTip
+    {
+        get
+        {
+            int ready = Zones.Count(z => z.SampleCount >= 10);
+            if (ready == 0) return "Record ≥ 10 taps on at least 1 zone to train";
+            if (ready == 1) return "Train single-zone acoustic template (add more zones to discriminate between spots)";
+            return $"Train acoustic classifier across {ready} zones";
+        }
+    }
 
     // Commands
     public RelayCommand AddZoneCommand { get; }
@@ -408,13 +419,18 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
                         SelectedZone.IsRecording = false;
                         _profileStore.SaveActiveProfile(_activeProfile);
                         TapDataExporter.ExportProfileTapsToCsv(_activeProfile, TapDataExporter.GetDefaultCsvPath(_activeProfile.Name));
-                        StatusMessage = $"Calibration complete for '{SelectedZone.Name}' (15 taps recorded).";
+                        StatusMessage = $"Calibration complete for '{SelectedZone.Name}' (15 taps recorded). Ready to Train!";
                         OnPropertyChanged(nameof(CanTrain));
+                        OnPropertyChanged(nameof(TrainButtonToolTip));
+                        System.Windows.Input.CommandManager.InvalidateRequerySuggested();
                     }
                     else
                     {
                         CurrentTapNumber++;
                         RecordingProgress = $"Tap {CurrentTapNumber} of {TargetTapCount}";
+                        OnPropertyChanged(nameof(CanTrain));
+                        OnPropertyChanged(nameof(TrainButtonToolTip));
+                        System.Windows.Input.CommandManager.InvalidateRequerySuggested();
                         _calibrationStep = 4;
                     }
                 }
@@ -815,16 +831,20 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
     {
         if (!CanTrain)
         {
-            StatusMessage = "Need ≥ 2 zones with ≥ 10 recorded taps each.";
+            StatusMessage = "Need ≥ 10 recorded taps on at least 1 zone to train.";
             return;
         }
 
-        StatusMessage = "Training acoustic model...";
-        var activeZones = Zones.Select(z => z.Model).ToList();
+        // Include all zones that have at least 10 samples
+        var trainedZones = Zones.Where(z => z.SampleCount >= 10).Select(z => z.Model).ToList();
         var samples = _activeProfile.TrainingSamples;
 
+        StatusMessage = trainedZones.Count == 1
+            ? "Calibrating single-zone acoustic template..."
+            : $"Training acoustic classifier across {trainedZones.Count} zones...";
+
         var classifier = new TapClassifier();
-        var result = classifier.Train(activeZones, samples);
+        var result = classifier.Train(trainedZones, samples);
 
         LatestTrainingResult = result;
         ShowTrainingResultDialog = true;
@@ -836,9 +856,9 @@ public sealed class MainViewModel : BaseViewModel, IDisposable
             _profileStore.SaveActiveProfile(_activeProfile);
 
             _logger.LogInformation("Model trained successfully across {ZoneCount} zones with {Accuracy:0.0}% accuracy. Median latency: {Latency:0.00}ms.",
-                activeZones.Count, result.AccuracyPercent, result.MedianLatencyMs);
+                trainedZones.Count, result.AccuracyPercent, result.MedianLatencyMs);
 
-            StatusMessage = $"Model trained! Accuracy: {result.AccuracyPercent:0.0}% across {activeZones.Count} zones.";
+            StatusMessage = $"Model trained! Accuracy: {result.AccuracyPercent:0.0}% across {trainedZones.Count} zones.";
         }
         else
         {

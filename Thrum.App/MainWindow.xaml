@@ -350,6 +350,7 @@
                                         Style="{StaticResource ModernBtn}" Margin="0,0,8,0"/>
 
                                 <Button Content="Train Model" Command="{Binding TrainModelCommand}" 
+                                        ToolTip="{Binding TrainButtonToolTip}"
                                         Style="{StaticResource SecondaryBtn}" Margin="0,0,10,0"/>
 
                                 <TextBlock Text="{Binding Zones.Count, StringFormat='{}{0} zones'}" 
